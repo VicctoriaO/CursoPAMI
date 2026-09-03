@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad: Clasifica los Paradigmas de la Niñez</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e6f0f8 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .activity-container {
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #00539c 0%, #003d70 100%);
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        
+        .activity-content {
+            padding: 25px;
+        }
+        
+        .instructions {
+            background: #f0f7ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #00539c;
+        }
+        
+        .instructions h2 {
+            color: #00539c;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .instructions p {
+            line-height: 1.6;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .paradigmas-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .paradigma-card {
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 2px solid #eaeaea;
+        }
+        
+        .paradigma-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .paradigma-card.active {
+            border-color: #00539c;
+            background: #e6f0f8;
+            transform: scale(1.02);
+        }
+        
+        .paradigma-card h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .paradigma-card p {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.4;
+        }
+        
+        .paradigma-card.peligrosidad { border-color: #d32f2f; }
+        .paradigma-card.peligrosidad h3 { color: #d32f2f; }
+        
+        .paradigma-card.amor { border-color: #388e3c; }
+        .paradigma-card.amor h3 { color: #388e3c; }
+        
+        .paradigma-card.respeto { border-color: #1976d2; }
+        .paradigma-card.respeto h3 { color: #1976d2; }
+        
+        .situacion-container {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .situacion-container h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .situacion-text {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .buttons-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn.peligrosidad { background: #ffebee; color: #b71c1c; border: 2px solid #ffcdd2; }
+        .btn.amor { background: #e8f5e9; color: #1b5e20; border: 2px solid #c8e6c9; }
+        .btn.respeto { background: #e3f2fd; color: #0d47a1; border: 2px solid #bbdefb; }
+        
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn:active { transform: translateY(0); }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+        
+        .feedback.correct { background: #e8f5e9; border: 2px solid #c8e6c9; color: #1b5e20; display: block; }
+        .feedback.incorrect { background: #ffebee; border: 2px solid #ffcdd2; color: #b71c1c; display: block; }
+        
+        .feedback p { font-size: 14px; line-height: 1.5; margin-top: 10px; }
+        .feedback h3 { font-size: 18px; margin-bottom: 5px; }
+        
+        .score-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #00539c;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .btn-next, .btn-restart {
+            background: linear-gradient(135deg, #00539c 0%, #003d70 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 83, 156, 0.3);
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn-next:hover, .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 83, 156, 0.4);
+        }
+        
+        .final-message {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0f8 100%);
+            border: 3px solid #00539c;
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .final-message h2 { color: #00539c; font-size: 22px; margin-bottom: 15px; }
+        .final-score { font-size: 42px; font-weight: 700; color: #00539c; margin: 15px 0; }
+        .final-message p { font-size: 15px; line-height: 1.6; color: #333; margin-bottom: 15px; }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .hidden { display: none !important; }
+        
+        @media (max-width: 480px) {
+            .activity-container { border-radius: 15px; }
+            .header h1 { font-size: 22px; }
+            .paradigmas-container { grid-template-columns: 1fr; }
+            .btn { padding: 12px 8px; font-size: 13px; }
+            .final-score { font-size: 36px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="activity-container">
+        <div class="header">
+            <h1>Actividad: Clasifica los Paradigmas</h1>
+            <p>Identifica a qué paradigma corresponde cada situación sobre la niñez y adolescencia.</p>
+        </div>
+        
+        <div class="activity-content">
+            <div class="instructions">
+                <h2> ¿Cómo realizar la actividad?</h2>
+                <p>1. Lee cada situación que se te presenta.<br>
+                2. Selecciona el paradigma que mejor la describe.<br>
+                3. Recibe retroalimentación inmediata.<br>
+                4. Al finalizar, verás tu puntuación y recomendaciones.</p>
+            </div>
+            
+            <div class="paradigmas-container">
+                <div class="paradigma-card peligrosidad" onclick="selectParadigm('peligrosidad')">
+                    <h3>⚠️ Peligrosidad</h3>
+                    <p>Ve al niño como riesgo social, débil e incapaz. Justifica el control y la represión.</p>
+                </div>
+                <div class="paradigma-card amor" onclick="selectParadigm('amor')">
+                    <h3>❤️ Amor</h3>
+                    <p>Inspirado en el cristianismo. Reconoce el protagonismo y ve al niño como modelo de conducta.</p>
+                </div>
+                <div class="paradigma-card respeto" onclick="selectParadigm('respeto')">
+                    <h3>👤 Respeto</h3>
+                    <p>Surge con la CDN de 1989. Reconoce al niño como sujeto de derechos y promueve su participación.</p>
+                </div>
+            </div>
+            
+            <div class="situacion-container" id="game-area">
+                <h2>¿A qué paradigma pertenece esta situación?</h2>
+                <div class="situacion-text" id="situacion-text">Cargando situación...</div>
+                
+                <div class="buttons-container">
+                    <button class="btn peligrosidad" onclick="checkAnswer('peligrosidad')">Peligrosidad</button>
+                    <button class="btn amor" onclick="checkAnswer('amor')">Amor</button>
+                    <button class="btn respeto" onclick="checkAnswer('respeto')">Respeto</button>
+                </div>
+                
+                <div class="feedback" id="feedback"></div>
+                
+                <button class="btn-next hidden" id="btn-next" onclick="nextSituation()">Siguiente situación →</button>
+                
+                <div class="score-container">
+                    <p style="font-weight: 600; color: #4a5568;">Puntuación: <span id="score">0</span> / 10</p>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    <p style="font-size: 12px; color: #666;">Situación <span id="current-q">1</span> de 10</p>
+                </div>
+            </div>
+
+            <div class="final-message hidden" id="final-area">
+                <h2 id="final-title">¡Actividad completada!</h2>
+                <div class="final-score" id="final-score-display">0/10</div>
+                <p id="final-feedback"></p>
+                <button class="btn-restart" onclick="restartActivity()"> Volver a realizar la actividad</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Basado en el Módulo 1: Paradigmas y situación de la Niñez y adolescencia en Guatemala.
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+        
+        const questions = [
+            {
+                text: "Los niños y niñas deben ser controlados y vigilados para evitar que cometan delitos, ya que son un riesgo para la sociedad.",
+                correct: "peligrosidad",
+                explanation: "El paradigma de la peligrosidad ve a la niñez como un riesgo social y justifica el control y la represión."
+            },
+            {
+                text: "El niño es considerado un sujeto de derechos y su opinión debe ser tomada en cuenta en los asuntos que le conciernen.",
+                correct: "respeto",
+                explanation: "El paradigma del respeto, basado en la CDN de 1989, reconoce al niño como sujeto de derechos y promueve su participación."
+            },
+            {
+                text: "Jesús restituye a la infancia su ciudadanía y la considera un modelo de conducta, mostrando un amor entrañable hacia ellos.",
+                correct: "amor",
+                explanation: "El paradigma emergente o del amor se inspira en el cristianismo, viendo a la niñez como modelo y protagonista."
+            },
+            {
+                text: "Se asume que la infancia es débil, inmadura e incapaz jurídica y socialmente, lo que justifica la violencia contra ellos.",
+                correct: "peligrosidad",
+                explanation: "Este paradigma asume que el niño es incompetente, lo que históricamente ha justificado la violencia y el control."
+            },
+            {
+                text: "Surge a partir de la Convención sobre los Derechos del Niño de 1989, reconociendo al niño como persona y titular de derechos.",
+                correct: "respeto",
+                explanation: "El paradigma del respeto nace formalmente con la CDN de 1989, cambiando la visión de 'objeto' a 'sujeto' de derechos."
+            },
+            {
+                text: "Reconoce el protagonismo de la niñez, inspirado en pasajes donde se invita a 'ser como niños' y se reivindica a la niñez trabajadora.",
+                correct: "amor",
+                explanation: "El paradigma del amor rescata el protagonismo infantil desde una perspectiva cristiana y de valoración profunda."
+            },
+            {
+                text: "Categoriza a los niños como 'menores', 'vagos' o 'delincuentes', estigmatizando especialmente a los niños en situación de pobreza.",
+                correct: "peligrosidad",
+                explanation: "La peligrosidad utiliza etiquetas estigmatizantes y se basa en la Doctrina de la Situación Irregular."
+            },
+            {
+                text: "Establece el 'Interés superior del niño' como principio y fundamento de la administración de justicia y la relación social.",
+                correct: "respeto",
+                explanation: "El Interés Superior del Niño es un pilar fundamental del paradigma del respeto y la Protección Integral."
+            },
+            {
+                text: "Ve al niño como un ser puro, necesitado de amor, y lo posiciona como ejemplo a seguir para entrar al Reino de los Cielos.",
+                correct: "amor",
+                explanation: "Desde el paradigma del amor, la niñez representa la pureza y es un modelo espiritual y de conducta."
+            },
+            {
+                text: "Considera a los niños pobres como un riesgo real o potencial, generando prejuicios y fobia a las personas pobres (aporofobia).",
+                correct: "peligrosidad",
+                explanation: "La peligrosidad confunde pobreza con peligrosidad, generando exclusión y mecanismos de control social."
+            }
+        ];
+        
+        function loadQuestion() {
+            isAnswered = false;
+            document.querySelectorAll('.paradigma-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('btn-next').classList.add('hidden');
+            
+            document.getElementById('situacion-text').textContent = questions[currentQuestion].text;
+            document.getElementById('current-q').textContent = currentQuestion + 1;
+            document.getElementById('progress-bar').style.width = ((currentQuestion) / questions.length * 100) + '%';
+        }
+        
+        function selectParadigm(paradigm) {
+            if (isAnswered) return;
+            document.querySelectorAll('.paradigma-card').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.paradigma-card.${paradigm}`).classList.add('active');
+        }
+        
+        function checkAnswer(selected) {
+            if (isAnswered) return;
+            isAnswered = true;
+            
+            const isCorrect = selected === questions[currentQuestion].correct;
+            if (isCorrect) score++;
+            
+            document.getElementById('score').textContent = score;
+            
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+            feedback.innerHTML = `
+                <h3>${isCorrect ? '¡Correcto! ✅' : 'Incorrecto '}</h3>
+                <p>${questions[currentQuestion].explanation}</p>
+            `;
+            
+            document.getElementById('progress-bar').style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
+            document.getElementById('btn-next').classList.remove('hidden');
+        }
+        
+        function nextSituation() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showFinalResults();
+            }
+        }
+        
+        function showFinalResults() {
+            document.getElementById('game-area').classList.add('hidden');
+            document.getElementById('final-area').classList.remove('hidden');
+            document.getElementById('final-score-display').textContent = score + '/10';
+            
+            const title = document.getElementById('final-title');
+            const feedback = document.getElementById('final-feedback');
+            
+            if (score < 7) {
+                title.textContent = "¡Sigue intentándolo!";
+                feedback.innerHTML = "Te recomendamos <strong>volver a repasar</strong> el contenido del Módulo 1 sobre los paradigmas de la niñez y <strong>completar de nuevo esta actividad</strong> para fortalecer tu comprensión.";
+            } else if (score === 7 || score === 8) {
+                title.textContent = "¡Muy bien!";
+                feedback.innerHTML = "Tienes un buen entendimiento de los paradigmas. Has comprendido las diferencias clave. Puedes volver a realizar la actividad si deseas perfeccionar tu puntaje.";
+            } else {
+                title.textContent = "¡Excelente!";
+                feedback.innerHTML = "Has demostrado un dominio excepcional sobre los paradigmas de la niñez. Tu comprensión de la historia y los enfoques de derechos es sobresaliente.";
+            }
+        }
+        
+        function restartActivity() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('game-area').classList.remove('hidden');
+            document.getElementById('final-area').classList.add('hidden');
+            loadQuestion();
+        }
+        
+        // Iniciar
+        loadQuestion();
+    </script>
+</body>
+</html>

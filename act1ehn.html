@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Detective del Tiempo: La Niñez en la Historia</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e67e22;
+            --bg: #f4f6f7;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --success: #27ae60;
+            --error: #c0392b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+
+        .content { padding: 25px; flex: 1; }
+
+        .intro-box {
+            background: #fef5e7;
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .case-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .case-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .case-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text);
+            font-style: italic;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-btn:hover {
+            border-color: var(--secondary);
+            background: #fef5e7;
+            transform: translateX(5px);
+        }
+
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .option-btn.incorrect {
+            background: #f8d7da;
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .feedback-box {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .feedback-box.show { display: block; }
+        .feedback-box.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback-box.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        .next-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        .next-btn:hover { background: #d35400; }
+        .next-btn.show { display: block; }
+
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .final-screen {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .final-screen.show { display: block; }
+        .final-screen h2 { color: var(--primary); margin-bottom: 15px; }
+        .final-screen p { margin-bottom: 20px; line-height: 1.6; }
+        .score-display { font-size: 48px; font-weight: 700; color: var(--secondary); margin: 20px 0; }
+
+        .restart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        @media (min-width: 600px) {
+            .options-grid { grid-template-columns: 1fr 1fr; }
+            .options-grid .option-btn:last-child { grid-column: span 2; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🕰️ El Detective del Tiempo</h1>
+        <p>¿En qué época histórica vivió este niño o niña?</p>
+    </div>
+
+    <div class="content" id="game-area">
+        <div class="intro-box">
+            <strong>🔍 Tu misión:</strong> Lee el testimonio de cada niño o niña. Identifica las pistas sobre cómo era tratada la infancia en su época y selecciona el período histórico al que pertenece.
+        </div>
+
+        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+        <div class="case-card">
+            <div class="case-label" id="case-number">Caso 1 de 7</div>
+            <div class="case-text" id="case-text">Cargando...</div>
+        </div>
+
+        <div class="options-grid" id="options-container">
+            <!-- Botones generados por JS -->
+        </div>
+
+        <div class="feedback-box" id="feedback"></div>
+        <button class="next-btn" id="next-btn" onclick="nextCase()">Siguiente caso →</button>
+    </div>
+
+    <div class="final-screen" id="final-area">
+        <h2>¡Misión completada!</h2>
+        <div class="score-display" id="final-score">0/7</div>
+        <p id="final-msg">Mensaje final...</p>
+        <button class="restart-btn" onclick="restartGame()">Volver a jugar</button>
+    </div>
+</div>
+
+<script>
+    const cases = [
+        {
+            text: "Formo parte activa de la vida de mi comunidad. Pronto pasaré por un rito de iniciación con armas para dejar de ser niño y ser considerado adulto.",
+            correct: "Culturas primitivas",
+            explanation: "En las culturas primitivas, la niñez se integraba a la vida colectiva. El paso a la adultez se marcaba con ritos vinculados a la sexualidad o a las armas (adultización)."
+        },
+        {
+            text: "Soy considerado una fase imperfecta e irracional. Mi padre y mi tutor tienen autoridad absoluta sobre mí, pues la sociedad valora la fuerza y la armonía del adulto viril.",
+            correct: "Mundo clásico",
+            explanation: "En Grecia y Roma (Mundo clásico), la niñez era vista como marginal e irracional. Se valoraba al adulto viril y prevalecía el temor a la figura autoritaria del padre o el maestro."
+        },
+        {
+            text: "Jesús dijo 'dejad que los niños vengan a mí'. Soy visto como un modelo de pureza y se me invita a 'ser como niño' para entrar al Reino de los Cielos.",
+            correct: "Cristianismo",
+            explanation: "El Cristianismo marcó un parteaguas al dar alta valoración a la infancia. Jesús restituyó su ciudadanía y la concibió como la edad de la 'pura razón', necesitada de amor."
+        },
+        {
+            text: "Se cree que nací con el pecado original y estoy orientado naturalmente al mal. Por eso debo ser corregido, controlado y castigado. Si soy pobre, trabajo en el campo en lugar de estudiar.",
+            correct: "Edad Media",
+            explanation: "En la Edad Media prevaleció una percepción nociva de la infancia (San Agustín). Se consideraba 'no inocente', lo que justificaba el castigo y la explotación laboral en clases bajas."
+        },
+        {
+            text: "Soy hijo de una familia acomodada. Me educan, me protegen del mal y soy el centro del mundo familiar, pues soy visto como el portador del futuro.",
+            correct: "Sociedad burguesa y moderna",
+            explanation: "En la sociedad burguesa y moderna, la niñez del sector burgués era concebida como portadora del futuro, recibiendo inversión afectiva y económica, y siendo el centro familiar."
+        },
+        {
+            text: "Trabajo en una fábrica con ruidos estridentes y humo durante 14 horas. Gano mucho menos que un hombre adulto y no tengo seguridad. Soy parte de las mayorías explotadas.",
+            correct: "Sociedad burguesa y moderna",
+            explanation: "En la Sociedad Moderna (Revolución Industrial), la niñez del pueblo sufría explotación extrema. Trabajaban las mismas jornadas que los adultos en ambientes viciados y con salarios miserables."
+        },
+        {
+            text: "Me han enviado a una institución supuestamente para 'protegerme' de caer en actos vandálicos, pero en la práctica es como una prisión. Soy considerado un objeto de protección.",
+            correct: "Sociedad burguesa y moderna",
+            explanation: "De esta etapa proviene el concepto de 'objeto de protección'. Para evitar que cayeran en actos delictivos, se confinaba a la niñez en instituciones que en la práctica eran verdaderas prisiones."
+        }
+    ];
+
+    let currentCase = 0;
+    let score = 0;
+    let answered = false;
+
+    const periods = [
+        "Culturas primitivas",
+        "Mundo clásico",
+        "Cristianismo",
+        "Edad Media",
+        "Sociedad burguesa y moderna"
+    ];
+
+    function loadCase() {
+        answered = false;
+        document.getElementById('case-number').textContent = `Caso ${currentCase + 1} de ${cases.length}`;
+        document.getElementById('case-text').textContent = cases[currentCase].text;
+        document.getElementById('feedback').className = 'feedback-box';
+        document.getElementById('next-btn').className = 'next-btn';
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        periods.forEach(period => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = period;
+            btn.onclick = () => checkAnswer(period, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        document.getElementById('progress').style.width = `${(currentCase / cases.length) * 100}%`;
+    }
+
+    function checkAnswer(selected, btnElement) {
+        if (answered) return;
+        answered = true;
+
+        const isCorrect = selected === cases[currentCase].correct;
+        const feedback = document.getElementById('feedback');
+        const allBtns = document.querySelectorAll('.option-btn');
+
+        allBtns.forEach(btn => {
+            btn.style.pointerEvents = 'none';
+            if (btn.textContent === cases[currentCase].correct) {
+                btn.classList.add('correct');
+            } else if (btn === btnElement && !isCorrect) {
+                btn.classList.add('incorrect');
+            }
+        });
+
+        if (isCorrect) score++;
+
+        feedback.innerHTML = `<strong>${isCorrect ? '¡Correcto! ✅' : 'Incorrecto ❌'}</strong><br>${cases[currentCase].explanation}`;
+        feedback.className = `feedback-box show ${isCorrect ? 'correct' : 'incorrect'}`;
+        document.getElementById('next-btn').className = 'next-btn show';
+    }
+
+    function nextCase() {
+        currentCase++;
+        if (currentCase < cases.length) {
+            loadCase();
+        } else {
+            showFinal();
+        }
+    }
+
+    function showFinal() {
+        document.getElementById('game-area').style.display = 'none';
+        const finalArea = document.getElementById('final-area');
+        finalArea.className = 'final-screen show';
+        document.getElementById('final-score').textContent = `${score}/${cases.length}`;
+        
+        let msg = "";
+        if (score === cases.length) msg = "¡Excelente! Eres un verdadero experto en la historia de la infancia. Has identificado perfectamente cómo han cambiado (o no) los paradigmas sobre la niñez a lo largo del tiempo.";
+        else if (score >= 5) msg = "¡Muy bien! Tienes un buen dominio de cómo se ha concebido a la niñez en las diferentes épocas históricas. Repasa los casos fallidos para consolidar tu aprendizaje.";
+        else msg = "Buen intento. Te recomendamos repasar la sección 'La infancia en la historia' del documento para identificar mejor las características de cada época y volver a intentarlo.";
+        
+        document.getElementById('final-msg').textContent = msg;
+    }
+
+    function restartGame() {
+        currentCase = 0;
+        score = 0;
+        document.getElementById('game-area').style.display = 'block';
+        document.getElementById('final-area').className = 'final-screen';
+        loadCase();
+    }
+
+    // Iniciar
+    loadCase();
+</script>
+
+</body>
+</html>
