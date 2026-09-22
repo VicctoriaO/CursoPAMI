@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad 1: Reconstruya la ruta</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #393939;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .activity-header {
+            background-color: #ffffff;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-top: 5px solid #779610;
+            overflow: hidden; /* Para que la imagen respete los bordes redondeados */
+        }
+
+        .header-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 4px solid #779610;
+        }
+
+        .header-content {
+            padding: 30px;
+        }
+
+        .activity-header h1 {
+            color: #779610;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .purpose-box {
+            background-color: #f0f5e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #779610;
+        }
+
+        .purpose-box strong {
+            color: #779610;
+        }
+
+        .instructions {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .instructions i {
+            margin-right: 8px;
+        }
+
+        /* Cards Container */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .route-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 5px solid #779610;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .route-card.correct {
+            border-left-color: #28a745;
+            background-color: #f0fff4;
+        }
+
+        .route-card.incorrect {
+            border-left-color: #dc3545;
+            background-color: #fff5f5;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Position numbers with different colors */
+        .card-position {
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* Different colors for each position */
+        .position-1 { background-color: #779610; } /* Verde institucional */
+        .position-2 { background-color: #2e86ab; } /* Azul */
+        .position-3 { background-color: #a23b72; } /* Magenta */
+        .position-4 { background-color: #f18f01; } /* Naranja */
+        .position-5 { background-color: #c73e1d; } /* Rojo */
+        .position-6 { background-color: #6a4c93; } /* Morado */
+
+        /* Override colors when correct/incorrect */
+        .route-card.correct .card-position {
+            background-color: #28a745 !important;
+        }
+
+        .route-card.incorrect .card-position {
+            background-color: #dc3545 !important;
+        }
+
+        .card-phase {
+            font-weight: 700;
+            color: #779610;
+            font-size: 1.1rem;
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-move {
+            background-color: #e0e0e0;
+            color: #393939;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .btn-move:hover:not(:disabled) {
+            background-color: #779610;
+            color: white;
+        }
+
+        .btn-move:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .card-content {
+            color: #393939;
+            font-size: 1rem;
+            padding-left: 55px; /* Align with text, skipping the number circle */
+        }
+
+        .status-icon {
+            margin-left: auto;
+            font-size: 1.5rem;
+            display: none;
+        }
+
+        .route-card.correct .status-icon.check { display: block; color: #28a745; }
+        .route-card.incorrect .status-icon.cross { display: block; color: #dc3545; }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .btn-primary {
+            background-color: #779610;
+            color: #ffffff;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a7a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(119, 150, 16, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #393939;
+            border: 2px solid #e0e0e0;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            border-color: #779610;
+            color: #779610;
+        }
+
+        /* Feedback Area */
+        .feedback-area {
+            display: none;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback-area.show {
+            display: block;
+        }
+
+        .feedback-area.success {
+            background-color: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .feedback-area.error {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .feedback-area h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .score-display {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Reference Route (Collapsible) */
+        .reference-route {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: none;
+        }
+
+        .reference-route.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .reference-route h3 {
+            color: #779610;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reference-list {
+            list-style: none;
+            counter-reset: route-counter;
+        }
+
+        .reference-list li {
+            counter-increment: route-counter;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #779610;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .reference-list li::before {
+            content: counter(route-counter);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* Different colors for reference list */
+        .reference-list li:nth-child(1)::before { background-color: #779610; }
+        .reference-list li:nth-child(2)::before { background-color: #2e86ab; }
+        .reference-list li:nth-child(3)::before { background-color: #a23b72; }
+        .reference-list li:nth-child(4)::before { background-color: #f18f01; }
+        .reference-list li:nth-child(5)::before { background-color: #c73e1d; }
+        .reference-list li:nth-child(6)::before { background-color: #6a4c93; }
+
+        .ref-phase {
+            font-weight: 700;
+            color: #779610;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header-image {
+                height: 200px;
+            }
+            
+            .activity-header h1 {
+                font-size: 1.4rem;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .card-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .card-content {
+                padding-left: 0;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="activity-header">
+            <!-- Imagen de encabezado (URL convertida a raw para visualización correcta) -->
+            <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/9f9219a240b41221e5f9b367cc6f3a6de17326fe/M2Arecursos/IMGinfo2.png" 
+                 alt="Participación y organización comunitaria" 
+                 class="header-image"
+                 onerror="this.src='https://via.placeholder.com/800x280/779610/ffffff?text=Actividad+1:+Reconstruya+la+ruta'">
+            
+            <div class="header-content">
+                <h1><i class="fas fa-puzzle-piece"></i> Actividad 1: Reconstruya la ruta</h1>
+                
+                <div class="purpose-box">
+                    <strong><i class="fas fa-bullseye"></i> Propósito:</strong> Relacionar las seis fases con acciones concretas del proceso municipal.
+                </div>
+
+                <div class="instructions">
+                    <p><i class="fas fa-info-circle"></i> <strong>Instrucciones:</strong> Las tarjetas presentan acciones de una ruta municipal. Ordénelas según la secuencia estudiada. Puede moverlas con los botones «Subir» <i class="fas fa-chevron-up"></i> y «Bajar» <i class="fas fa-chevron-down"></i>. Al terminar, seleccione «Comprobar» y revise las explicaciones. Esta es una actividad de práctica formativa.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Container -->
+        <div class="cards-container" id="cardsContainer">
+            <!-- Cards will be injected here by JavaScript -->
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn-primary" onclick="checkOrder()">
+                <i class="fas fa-check-circle"></i> Comprobar orden
+            </button>
+            <button class="btn-secondary" onclick="resetActivity()">
+                <i class="fas fa-redo"></i> Reiniciar
+            </button>
+            <button class="btn-secondary" onclick="toggleReference()">
+                <i class="fas fa-book-open"></i> Consultar la ruta
+            </button>
+        </div>
+
+        <!-- Feedback Area -->
+        <div class="feedback-area" id="feedbackArea">
+            <h3 id="feedbackTitle"></h3>
+            <p id="feedbackText"></p>
+            <div class="score-display" id="scoreDisplay"></div>
+        </div>
+
+        <!-- Reference Route -->
+        <div class="reference-route" id="referenceRoute">
+            <h3><i class="fas fa-map-signs"></i> Secuencia de referencia del módulo</h3>
+            <ol class="reference-list">
+                <li>
+                    <div>
+                        <span class="ref-phase">Organización y participación</span>
+                        Convocar a los actores y acordar cómo participarán durante el proceso.
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <span class="ref-phase">Diagnóstico y consultas</span>
+                        Revisar información y escuchar a la población para identificar y priorizar problemas.
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <span class="ref-phase">Elaboración de propuestas</span>
+                        Construir acciones vinculadas con los derechos y las prioridades identificadas.
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <span class="ref-phase">Asignación y disponibilidad de presupuesto</span>
+                        Relacionar las acciones con recursos y decisiones presupuestarias.
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <span class="ref-phase">Seguimiento, evaluación y auditoría social</span>
+                        Revisar la ejecución, valorar resultados y plantear mejoras.
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <span class="ref-phase">Transparencia y rendición de cuentas</span>
+                        Informar y explicar las decisiones, el uso de recursos y los resultados.
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Correct order data
+        const correctData = [
+            { id: 1, phase: "Organización y participación", action: "Convocar a los actores y acordar cómo participarán durante el proceso." },
+            { id: 2, phase: "Diagnóstico y consultas", action: "Revisar información y escuchar a la población para identificar y priorizar problemas." },
+            { id: 3, phase: "Elaboración de propuestas", action: "Construir acciones vinculadas con los derechos y las prioridades identificadas." },
+            { id: 4, phase: "Asignación y disponibilidad de presupuesto", action: "Relacionar las acciones con recursos y decisiones presupuestarias." },
+            { id: 5, phase: "Seguimiento, evaluación y auditoría social", action: "Revisar la ejecución, valorar resultados y plantear mejoras." },
+            { id: 6, phase: "Transparencia y rendición de cuentas", action: "Informar y explicar las decisiones, el uso de recursos y los resultados." }
+        ];
+
+        let currentOrder = [];
+
+        // Shuffle function
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            // Ensure it doesn't start in the correct order
+            if (array.every((val, index) => val.id === index + 1)) {
+                return shuffle(array);
+            }
+            return array;
+        }
+
+        // Initialize activity
+        function initActivity() {
+            currentOrder = shuffle([...correctData]);
+            renderCards();
+            hideFeedback();
+            document.getElementById('referenceRoute').classList.remove('show');
+        }
+
+        // Render cards
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            currentOrder.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'route-card';
+                card.id = `card-${item.id}`;
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-position position-${index + 1}">${index + 1}</div>
+                        <div class="card-phase">${item.phase}</div>
+                        <div class="card-actions">
+                            <button class="btn-move" onclick="moveCard(${index}, -1)" ${index === 0 ? 'disabled' : ''} aria-label="Subir tarjeta">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                            <button class="btn-move" onclick="moveCard(${index}, 1)" ${index === currentOrder.length - 1 ? 'disabled' : ''} aria-label="Bajar tarjeta">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <i class="fas fa-check-circle status-icon check"></i>
+                        <i class="fas fa-times-circle status-icon cross"></i>
+                    </div>
+                    <div class="card-content">
+                        ${item.action}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Move card up or down
+        function moveCard(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < currentOrder.length) {
+                // Swap elements
+                [currentOrder[index], currentOrder[newIndex]] = [currentOrder[newIndex], currentOrder[index]];
+                renderCards();
+                hideFeedback(); // Clear feedback when order changes
+            }
+        }
+
+        // Check order
+        function checkOrder() {
+            let correctCount = 0;
+            const cards = document.querySelectorAll('.route-card');
+            
+            currentOrder.forEach((item, index) => {
+                const card = document.getElementById(`card-${item.id}`);
+                // Remove previous states
+                card.classList.remove('correct', 'incorrect');
+                
+                if (item.id === index + 1) {
+                    card.classList.add('correct');
+                    correctCount++;
+                } else {
+                    card.classList.add('incorrect');
+                }
+            });
+
+            showFeedback(correctCount);
+        }
+
+        // Show feedback
+        function showFeedback(score) {
+            const feedbackArea = document.getElementById('feedbackArea');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackText = document.getElementById('feedbackText');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+
+            feedbackArea.classList.remove('success', 'error');
+            feedbackArea.classList.add('show');
+
+            if (score === 6) {
+                feedbackArea.classList.add('success');
+                feedbackTitle.innerHTML = '<i class="fas fa-trophy"></i> ¡Excelente!';
+                feedbackText.textContent = 'Ha reconstruido la secuencia de referencia del módulo. En la práctica, estas fases se relacionan y pueden requerir revisiones. La participación de la niñez y la transparencia deben mantenerse durante todo el proceso.';
+            } else {
+                feedbackArea.classList.add('error');
+                feedbackTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Hay elementos por ajustar';
+                feedbackText.textContent = 'Revise la relación entre las acciones: conocer la realidad ayuda a formular propuestas; las propuestas necesitan recursos; y la ejecución requiere seguimiento e información sobre sus resultados. Las tarjetas en rojo indican una posición incorrecta.';
+            }
+
+            scoreDisplay.innerHTML = `<i class="fas fa-star"></i> Puntuación de esta tentativa: ${score} de 6 puntos correctos.`;
+            
+            // Scroll to feedback
+            feedbackArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Hide feedback
+        function hideFeedback() {
+            const feedbackArea = document.getElementById('feedbackArea');
+            feedbackArea.classList.remove('show');
+            const cards = document.querySelectorAll('.route-card');
+            cards.forEach(card => card.classList.remove('correct', 'incorrect'));
+        }
+
+        // Reset activity
+        function resetActivity() {
+            initActivity();
+        }
+
+        // Toggle reference route
+        function toggleReference() {
+            const ref = document.getElementById('referenceRoute');
+            ref.classList.toggle('show');
+            if (ref.classList.contains('show')) {
+                ref.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Start on load
+        window.onload = initActivity;
+    </script>
+</body>
+</html>
