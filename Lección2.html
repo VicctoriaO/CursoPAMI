@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lección 2 — De la ley a la acción en nuestro municipio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #393939;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #779610;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #779610 0%, #5a7a0a 100%);
+            transition: width 0.5s ease;
+            border-radius: 6px;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .progress-step {
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step:hover {
+            background-color: #779610;
+            color: white;
+        }
+
+        .progress-step.active {
+            background-color: #779610;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .welcome-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .welcome-content {
+            padding: 40px;
+        }
+
+        .welcome-content h1 {
+            color: #779610;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .welcome-content h1 i {
+            color: #779610;
+        }
+
+        .welcome-content p {
+            color: #393939;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .alert-box {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .alert-box i {
+            color: #856404;
+            margin-right: 8px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            background-color: #f0f5e0;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #779610;
+        }
+
+        .feature-item i {
+            font-size: 2.5rem;
+            color: #779610;
+            margin-bottom: 10px;
+        }
+
+        .feature-item h3 {
+            color: #393939;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .btn-primary {
+            background-color: #779610;
+            color: #ffffff;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a7a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(119, 150, 16, 0.4);
+        }
+
+        .btn-primary:focus {
+            outline: 3px solid #393939;
+            outline-offset: 2px;
+        }
+
+        /* Ficha Cards */
+        .ficha-screen {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .ficha-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #779610;
+        }
+
+        .ficha-icon {
+            width: 70px;
+            height: 70px;
+            background-color: #779610;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .ficha-title h2 {
+            color: #779610;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .ficha-title p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .ficha-image {
+            width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        .instruction-alert {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .instruction-alert i {
+            font-size: 2rem;
+            color: #856404;
+        }
+
+        .instruction-alert p {
+            color: #856404;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .content-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: #f0f0f0;
+            color: #393939;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .tab-btn.active {
+            background-color: #779610;
+            color: white;
+        }
+
+        .tab-btn:focus {
+            outline: 2px solid #393939;
+            outline-offset: 2px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            border-left: 4px solid #779610;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content h3 {
+            color: #779610;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-content p {
+            margin-bottom: 12px;
+            color: #393939;
+        }
+
+        .info-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .reflection-box {
+            background: linear-gradient(135deg, #f0f5e0 0%, #e8f0d0 100%);
+            border: 2px solid #779610;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .reflection-box i {
+            color: #779610;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .reflection-box p {
+            font-style: italic;
+            color: #393939;
+            font-weight: 500;
+        }
+
+        .legal-base {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #393939;
+        }
+
+        .legal-base i {
+            color: #393939;
+            margin-right: 8px;
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #393939;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+        .btn-secondary:focus {
+            outline: 2px solid #393939;
+            outline-offset: 2px;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Closing Screen */
+        .closing-screen {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .closing-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .closing-header i {
+            font-size: 4rem;
+            color: #779610;
+            margin-bottom: 20px;
+        }
+
+        .closing-header h2 {
+            color: #779610;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .questions-container {
+            display: grid;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #779610;
+        }
+
+        .question-card h3 {
+            color: #779610;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .question-card p {
+            color: #393939;
+            font-size: 1.05rem;
+        }
+
+        .final-reflection {
+            background: linear-gradient(135deg, #779610 0%, #5a7a0a 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .final-reflection i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .final-reflection h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .final-reflection p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .btn-restart {
+            background-color: white;
+            color: #779610;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+            font-weight: 600;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .welcome-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .ficha-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ficha-title h2 {
+                font-size: 1.4rem;
+            }
+
+            .content-tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-secondary, .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .progress-steps {
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-info">
+                <span id="progress-text">Inicio</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-steps">
+                <span class="progress-step active" onclick="goToScreen(0)" data-step="0">Inicio</span>
+                <span class="progress-step" onclick="goToScreen(1)" data-step="1">F1</span>
+                <span class="progress-step" onclick="goToScreen(2)" data-step="2">F2</span>
+                <span class="progress-step" onclick="goToScreen(3)" data-step="3">F3</span>
+                <span class="progress-step" onclick="goToScreen(4)" data-step="4">F4</span>
+                <span class="progress-step" onclick="goToScreen(5)" data-step="5">F5</span>
+                <span class="progress-step" onclick="goToScreen(6)" data-step="6">F6</span>
+                <span class="progress-step" onclick="goToScreen(7)" data-step="7">F7</span>
+                <span class="progress-step" onclick="goToScreen(8)" data-step="8">F8</span>
+                <span class="progress-step" onclick="goToScreen(9)" data-step="9">Cierre</span>
+            </div>
+        </div>
+
+        <!-- Welcome Screen -->
+        <div class="screen active" id="screen-welcome">
+            <div class="welcome-screen">
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/MainIMG.png" 
+                     alt="Portada Lección 2" 
+                     class="welcome-image"
+                     onerror="this.src='https://via.placeholder.com/1000x400/779610/ffffff?text=Lección+2:+De+la+ley+a+la+acción'">
+                
+                <div class="welcome-content">
+                    <h1><i class="fas fa-book-open"></i> Lección 2: De la ley a la acción en nuestro municipio</h1>
+                    
+                    <p><i class="fas fa-question-circle" style="color: #779610;"></i> ¿Cómo se relaciona el marco legal con las decisiones que se toman en un municipio?</p>
+                    
+                    <p>En esta lección recorrerá <strong>seis fases</strong> para comprender qué acciones pueden desarrollar las autoridades y la ciudadanía, y cómo incorporar la participación de niñas, niños y adolescentes durante todo el proceso.</p>
+
+                    <div class="alert-box">
+                        <p><i class="fas fa-exclamation-triangle"></i> <strong>Importante:</strong> En cada ficha, revise las <strong>tres secciones</strong>: Comprender, Aplicar y Base Legal. Esto le permitirá tener una visión completa del tema.</p>
+                    </div>
+
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-route"></i>
+                            <h3>Ruta de 8 Fichas</h3>
+                            <p>Contenido estructurado paso a paso</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-users"></i>
+                            <h3>Participación</h3>
+                            <p>Enfoque en niñez y adolescencia</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-balance-scale"></i>
+                            <h3>Marco Legal</h3>
+                            <p>Base jurídica fundamentada</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-tasks"></i>
+                            <h3>Aplicación Práctica</h3>
+                            <p>Herramientas para la acción</p>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="goToScreen(1)">
+                        <i class="fas fa-play"></i> Comenzar la ruta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 1 -->
+        <div class="screen" id="screen-1">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-child"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 1: Comprender los derechos y la protección integral</h2>
+                        <p><i class="fas fa-shield-alt"></i> Fundamentos de derechos</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo1.png" 
+                     alt="Ficha 1" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(1, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(1, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(1, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-1-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>Niñas, niños y adolescentes son personas titulares de derechos. Las políticas de protección integral organizan acciones para garantizar su ejercicio y deben considerar las dimensiones social, económica y jurídica.</p>
+                    
+                    <div class="info-box">
+                        <p><strong>La Ley de Protección Integral distingue cuatro tipos de políticas:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Sociales básicas:</strong> Garantizan derechos de todas las niñas, niños y adolescentes.</li>
+                            <li><strong>Asistencia social:</strong> Atienden pobreza extrema o emergencia.</li>
+                            <li><strong>Protección especial:</strong> Recuperación de derechos vulnerados.</li>
+                            <li><strong>Garantía:</strong> Garantías procesales mínimas.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="ficha-1-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Al revisar una propuesta, pregúntese:</p>
+                    <ul style="margin-left: 20px;">
+                        <li>¿Qué derechos busca garantizar?</li>
+                        <li>¿A quiénes se dirige?</li>
+                        <li>¿Qué situación pretende transformar?</li>
+                    </ul>
+                    <p>Esta lectura permite reconocer el propósito de las acciones y evitar que se reduzcan a actividades aisladas.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-1-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Ley de Protección Integral de la Niñez y Adolescencia, artículos 3, 80, 81 y 82.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Qué diferencia encuentra entre realizar una actividad para la niñez y organizar acciones sostenidas para garantizar sus derechos?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(0)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(2)">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 2 -->
+        <div class="screen" id="screen-2">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 2: Organizarnos para participar</h2>
+                        <p><i class="fas fa-handshake"></i> Construcción colectiva</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png" 
+                     alt="Ficha 2" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(2, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(2, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(2, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-2-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>La organización permite que las personas compartan experiencias, identifiquen prioridades y construyan propuestas. En el municipio participan organizaciones comunitarias, COCODES, COMUDE, autoridades, instituciones y otros sectores.</p>
+                    <p>El Concejo Municipal tiene responsabilidades de convocatoria y organización de comisiones. La ciudadanía cuenta con mecanismos para participar en los asuntos municipales.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-2-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Identifique qué actores deben participar y cuáles suelen quedar fuera. Considere:</p>
+                    <ul style="margin-left: 20px;">
+                        <li>Comunidades rurales y urbanas</li>
+                        <li>Diversidad cultural y lingüística</li>
+                        <li>Personas con discapacidad</li>
+                        <li>Grupos de distintas edades</li>
+                    </ul>
+                </div>
+
+                <div class="tab-content" id="ficha-2-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Ley de Consejos de Desarrollo, artículos 1 y 14 b; Código Municipal, artículos 17, 18, 35 c, 36, 53 m y 54 d; Ley General de Descentralización, artículo 5.4.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Qué voces sería necesario incorporar para que la participación represente mejor a su municipio?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(1)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(3)">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 3 -->
+        <div class="screen" id="screen-3">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 3: Conocer la realidad y escuchar</h2>
+                        <p><i class="fas fa-ear-listen"></i> Diagnóstico participativo</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo3.png" 
+                     alt="Ficha 3" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(3, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(3, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(3, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-3-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>El diagnóstico permite identificar cómo se están ejerciendo los derechos y qué obstáculos enfrentan niñas, niños y adolescentes. Para elaborarlo se necesita relacionar información disponible con las experiencias de quienes viven en el territorio.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-3-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Revise información sobre educación, salud, protección y otras condiciones pertinentes. Identifique su fecha, cobertura y limitaciones. Complémentela con consultas accesibles y culturalmente pertinentes.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-3-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Código Municipal, artículos 35 c, 38 y 63 a 65; Ley de Consejos de Desarrollo, artículos 12 e y 14 e; Ley de Acceso a la Información Pública, artículo 1.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Qué información necesitaría contrastar antes de afirmar que conoce las prioridades de la niñez en su comunidad?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(2)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(4)">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 4 -->
+        <div class="screen" id="screen-4">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 4: Convertir prioridades en propuestas</h2>
+                        <p><i class="fas fa-file-alt"></i> Formulación de políticas</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo4.png" 
+                     alt="Ficha 4" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(4, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(4, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(4, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-4-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>Las prioridades identificadas deben orientar propuestas de acciones para garantizar derechos. La ciudadanía puede participar activa y voluntariamente en la formulación, planificación, ejecución y evaluación de políticas públicas.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-4-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Para revisar una propuesta, identifique:</p>
+                    <ul style="margin-left: 20px;">
+                        <li>El problema</li>
+                        <li>Los derechos involucrados</li>
+                        <li>Los cambios que se esperan</li>
+                    </ul>
+                </div>
+
+                <div class="tab-content" id="ficha-4-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Ley de Protección Integral de la Niñez y Adolescencia, artículo 81; Código Municipal, artículos 17 f, 35 c y 53 d; Ley de Consejos de Desarrollo, artículos 3, 12 d y 14 d–e.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Cómo explicaría a la comunidad la relación entre sus aportes y la propuesta elaborada?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(3)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(5)">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 5 -->
+        <div class="screen" id="screen-5">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 5: Vincular compromisos con presupuesto</h2>
+                        <p><i class="fas fa-calculator"></i> Recursos y equidad</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo5.png" 
+                     alt="Ficha 5" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(5, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(5, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(5, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-5-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>Las acciones previstas requieren recursos y decisiones presupuestarias. El presupuesto municipal debe relacionarse con las políticas vigentes y administrarse con criterios de equidad entre las comunidades.</p>
+                    <div class="info-box">
+                        <p><i class="fas fa-info-circle" style="color: #779610;"></i> <strong>Nota importante:</strong> El artículo 36.9 del Código Municipal establece un mínimo del 0.5% del situado constitucional para comisión de familia, mujer, niñez, juventud y adulto mayor.</p>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="ficha-5-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Revise qué acciones requieren financiamiento y cómo se incorporarán a la planificación y al presupuesto. Considere las desigualdades entre territorios y las necesidades básicas insatisfechas.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-5-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Código Municipal, artículos 36.9 y 131; Ley de Consejos de Desarrollo, artículos 12 j y 14 k; Ley General de Descentralización, artículos 5.9 y 16.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Qué información permitiría comprobar que una prioridad de la niñez tiene respaldo presupuestario?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(4)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(6)">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 6 -->
+        <div class="screen" id="screen-6">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 6: Seguimiento, evaluación y auditoría</h2>
+                        <p><i class="fas fa-clipboard-check"></i> Monitoreo continuo</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo6.png" 
+                     alt="Ficha 6" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(6, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(6, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(6, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-6-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>El seguimiento permite conocer cómo avanzan las acciones. La evaluación ayuda a valorar sus resultados y dificultades. La auditoría social permite a la ciudadanía organizada examinar aspectos de la gestión pública.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-6-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Compare los compromisos con la información disponible sobre su ejecución. Identifique qué se realizó, a quiénes llegó y qué dificultades se presentaron.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-6-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Código Municipal, artículos 9, 17 h y 139; Ley de Consejos de Desarrollo, artículos 12 f–g y 14 f–g; Ley General de Descentralización, artículo 19.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Qué evidencia necesitaría para plantear una observación sobre el cumplimiento de una política?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(5)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(7)">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 7 -->
+        <div class="screen" id="screen-7">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 7: Informar y rendir cuentas</h2>
+                        <p><i class="fas fa-file-invoice"></i> Transparencia</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo7.png" 
+                     alt="Ficha 7" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(7, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(7, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(7, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-7-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>La transparencia facilita que la población conozca las decisiones, los recursos y los resultados de la gestión pública. La rendición de cuentas implica informar y explicar qué se hizo, qué dificultades surgieron y cómo se atendieron las responsabilidades.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-7-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Al revisar un informe, busque los compromisos, los recursos ejecutados, los resultados y las dificultades. Pregunte qué medidas se tomarán para mejorar.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-7-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Código Municipal, artículo 17 g; Ley de Consejos de Desarrollo, artículos 12 i–l y 14 j; Ley de Acceso a la Información Pública, artículo 1.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Qué debería explicar una municipalidad para que la población comprenda los resultados de su política de niñez?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(6)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(8)">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ficha 8 -->
+        <div class="screen" id="screen-8">
+            <div class="ficha-screen">
+                <div class="ficha-header">
+                    <div class="ficha-icon">
+                        <i class="fas fa-child-reaching"></i>
+                    </div>
+                    <div class="ficha-title">
+                        <h2>Ficha 8: Incorporar la voz de la niñez</h2>
+                        <p><i class="fas fa-microphone-alt"></i> Participación transversal</p>
+                    </div>
+                </div>
+
+                <div class="instruction-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Recuerde revisar las <strong>3 secciones</strong> de esta ficha: Comprender, Aplicar y Base Legal. Use los botones de arriba para navegar entre ellas.</p>
+                </div>
+
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo8.png" 
+                     alt="Ficha 8" 
+                     class="ficha-image"
+                     onerror="this.style.display='none'">
+
+                <div class="content-tabs">
+                    <button class="tab-btn active" onclick="showTab(8, 'comprender')">
+                        <i class="fas fa-brain"></i> Comprender
+                    </button>
+                    <button class="tab-btn" onclick="showTab(8, 'aplicar')">
+                        <i class="fas fa-tools"></i> Aplicar
+                    </button>
+                    <button class="tab-btn" onclick="showTab(8, 'legal')">
+                        <i class="fas fa-gavel"></i> Base Legal
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="ficha-8-comprender">
+                    <h3><i class="fas fa-brain"></i> Comprender</h3>
+                    <p>Niñas, niños y adolescentes tienen derecho a expresar sus opiniones sobre los asuntos que les afectan y a que sean consideradas según su edad y madurez. También tienen derecho a asociarse y reunirse pacíficamente.</p>
+                    <div class="info-box">
+                        <p><i class="fas fa-route" style="color: #779610;"></i> <strong>Su participación atraviesa toda la ruta:</strong> pueden aportar al diagnóstico, formular propuestas, expresar prioridades y valorar los resultados.</p>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="ficha-8-aplicar">
+                    <h3><i class="fas fa-tools"></i> Aplicar</h3>
+                    <p>Explique para qué se solicita su participación y cómo se utilizarán sus aportes. Ofrezca diversas formas de expresión y apoyos según sus necesidades. Evite presiones para intervenir.</p>
+                </div>
+
+                <div class="tab-content" id="ficha-8-legal">
+                    <h3><i class="fas fa-gavel"></i> Base Legal</h3>
+                    <div class="legal-base">
+                        <p><i class="fas fa-book"></i> Convención sobre los Derechos del Niño, artículos 12 y 15; Ley de Protección Integral de la Niñez y Adolescencia, artículos 5 y 36 c.</p>
+                    </div>
+                    <div class="reflection-box">
+                        <p><i class="fas fa-lightbulb"></i> <strong>Pregunta para reflexionar:</strong> ¿Cómo podría comprobar que las opiniones de niñas, niños y adolescentes influyeron en el proceso?</p>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn-secondary" onclick="goToScreen(7)">
+                        <i class="fas fa-arrow-left"></i> Anterior
+                    </button>
+                    <button class="btn-primary" onclick="goToScreen(9)">
+                        Ir al cierre <i class="fas fa-flag-checkered"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Closing Screen -->
+        <div class="screen" id="screen-9">
+            <div class="closing-screen">
+                <div class="closing-header">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h2>Cierre de la Lección</h2>
+                    <p>Reflexión final y preguntas de consolidación</p>
+                </div>
+
+                <div class="questions-container">
+                    <div class="question-card">
+                        <h3><i class="fas fa-question-circle"></i> Pregunta 1</h3>
+                        <p>¿Cómo puede su municipio garantizar que las políticas de niñez no sean solo actividades aisladas, sino acciones sostenidas que realmente transformen la realidad de niñas, niños y adolescentes?</p>
+                    </div>
+
+                    <div class="question-card">
+                        <h3><i class="fas fa-question-circle"></i> Pregunta 2</h3>
+                        <p>¿Qué mecanismos concretos implementaría para asegurar que la participación de niñas, niños y adolescentes sea genuina y no solo simbólica en cada una de las seis fases del proceso?</p>
+                    </div>
+
+                    <div class="question-card">
+                        <h3><i class="fas fa-question-circle"></i> Pregunta 3</h3>
+                        <p>Considerando el marco legal presentado, ¿qué acciones prioritarias identificaría para fortalecer la vinculación entre el diagnóstico, la planificación, el presupuesto y la rendición de cuentas en su municipio?</p>
+                    </div>
+                </div>
+
+                <div class="final-reflection">
+                    <i class="fas fa-lightbulb"></i>
+                    <h3>Reflexión Final</h3>
+                    <p>Las seis fases permiten relacionar el marco legal con actuaciones concretas. La participación, la transparencia y la consideración de los derechos deben acompañar todo el recorrido. La información obtenida durante el seguimiento puede llevar a revisar el diagnóstico, las prioridades y las decisiones. <strong>El verdadero cambio ocurre cuando la ley se convierte en acción cotidiana.</strong></p>
+                </div>
+
+                <button class="btn-restart" onclick="goToScreen(0)">
+                    <i class="fas fa-redo"></i> Volver a iniciar la lección
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScreen = 0;
+        const totalScreens = 10; // 0-9
+
+        function goToScreen(screenIndex) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show target screen
+            const targetScreen = document.getElementById('screen-' + screenIndex);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            }
+            
+            // Update progress
+            updateProgress(screenIndex);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            currentScreen = screenIndex;
+        }
+
+        function updateProgress(screenIndex) {
+            const progressPercent = (screenIndex / (totalScreens - 1)) * 100;
+            document.getElementById('progress-fill').style.width = progressPercent + '%';
+            document.getElementById('progress-percent').textContent = Math.round(progressPercent) + '%';
+            
+            const progressTexts = [
+                'Inicio',
+                'Ficha 1',
+                'Ficha 2', 
+                'Ficha 3',
+                'Ficha 4',
+                'Ficha 5',
+                'Ficha 6',
+                'Ficha 7',
+                'Ficha 8',
+                'Cierre'
+            ];
+            
+            document.getElementById('progress-text').textContent = progressTexts[screenIndex] || 'Progreso';
+            
+            // Update progress steps
+            document.querySelectorAll('.progress-step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index <= screenIndex) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function showTab(fichaNum, tabName) {
+            // Hide all tabs for this ficha
+            const ficha = document.getElementById('screen-' + fichaNum);
+            ficha.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById('ficha-' + fichaNum + '-' + tabName).classList.add('active');
+            
+            // Update buttons
+            ficha.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Initialize
+        updateProgress(0);
+    </script>
+</body>
+</html>
