@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad 2: Un municipio toma decisiones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #393939;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .activity-header {
+            background-color: #ffffff;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-top: 5px solid #779610;
+            overflow: hidden;
+        }
+
+        .header-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 4px solid #779610;
+        }
+
+        .header-content {
+            padding: 30px;
+        }
+
+        .activity-header h1 {
+            color: #779610;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .purpose-box {
+            background-color: #f0f5e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #779610;
+        }
+
+        .purpose-box strong {
+            color: #779610;
+        }
+
+        .case-presentation {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #779610;
+            margin-bottom: 20px;
+        }
+
+        .case-presentation h3 {
+            color: #779610;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .case-presentation p {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+
+        .instructions {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2e86ab;
+            color: #1a5276;
+        }
+
+        .instructions i {
+            margin-right: 8px;
+        }
+
+        /* Decision Cards */
+        .decisions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .decision-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 5px solid #779610;
+            transition: all 0.3s ease;
+        }
+
+        .decision-card.answered {
+            border-left-color: #28a745;
+        }
+
+        .decision-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .decision-number {
+            background-color: #779610;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .decision-card.answered .decision-number {
+            background-color: #28a745;
+        }
+
+        .decision-title {
+            font-size: 1.2rem;
+            color: #779610;
+            font-weight: 700;
+        }
+
+        .decision-situation {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-style: italic;
+            border-left: 3px solid #779610;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+        }
+
+        .option-item:hover:not(.disabled) {
+            border-color: #779610;
+            background-color: #f0f5e0;
+        }
+
+        .option-item.selected {
+            border-color: #779610;
+            background-color: #f0f5e0;
+        }
+
+        .option-item.correct {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .option-item.incorrect {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .option-item.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            background-color: #779610;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option-item.correct .option-letter {
+            background-color: #28a745;
+        }
+
+        .option-item.incorrect .option-letter {
+            background-color: #dc3545;
+        }
+
+        .option-text {
+            flex-grow: 1;
+            font-size: 0.95rem;
+        }
+
+        .feedback-box {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            border-radius: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+            color: #155724;
+        }
+
+        .feedback-box.incorrect {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            color: #856404;
+        }
+
+        .feedback-box h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .results-section.excellent .results-icon { color: #28a745; }
+        .results-section.good .results-icon { color: #ffc107; }
+        .results-section.needs-review .results-icon { color: #dc3545; }
+
+        .results-section h2 {
+            color: #779610;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #779610;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f0f5e0;
+            border-radius: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background-color: #779610;
+            color: #ffffff;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a7a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(119, 150, 16, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #393939;
+            border: 2px solid #e0e0e0;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            border-color: #779610;
+            color: #779610;
+        }
+
+        .btn-check-all {
+            background-color: #2e86ab;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            margin: 30px auto;
+        }
+
+        .btn-check-all:hover {
+            background-color: #1a5276;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 134, 171, 0.4);
+        }
+
+        .progress-indicator {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f5e0;
+            border-radius: 10px;
+            font-weight: 600;
+            color: #779610;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header-image {
+                height: 200px;
+            }
+            
+            .activity-header h1 {
+                font-size: 1.4rem;
+            }
+
+            .decision-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary, .btn-check-all {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="activity-header">
+            <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/026a7123d599d98e049c709d0bfb45c8ab4ecac6/M2Arecursos/IMGinfo7.png" 
+                 alt="Toma de decisiones municipales" 
+                 class="header-image"
+                 onerror="this.src='https://via.placeholder.com/900x280/779610/ffffff?text=Actividad+2:+Un+municipio+toma+decisiones'">
+            
+            <div class="header-content">
+                <h1><i class="fas fa-gavel"></i> Actividad 2: Un municipio toma decisiones</h1>
+                
+                <div class="purpose-box">
+                    <strong><i class="fas fa-bullseye"></i> Propósito:</strong> Aplicar el marco legal en un estudio de caso.
+                </div>
+
+                <div class="case-presentation">
+                    <h3><i class="fas fa-map-marked-alt"></i> Presentación del caso</h3>
+                    <p>Este es un escenario ficticio, elaborado a partir de los temas de los tres casos del documento de evaluación.</p>
+                    <p>Una municipalidad inicia la formulación de su política de niñez y adolescencia. Participan autoridades, organizaciones comunitarias, instituciones y un grupo de adolescentes. Durante el proceso aparecen diferencias sobre cómo hacer el diagnóstico, qué debe contener la propuesta y cómo financiarla.</p>
+                    <p><strong>Usted acompañará cuatro decisiones.</strong> Lea cada situación, seleccione una respuesta y revise sus consecuencias.</p>
+                </div>
+
+                <div class="instructions">
+                    <p><i class="fas fa-info-circle"></i> <strong>Instrucciones:</strong> Seleccione la mejor opción para cada decisión. Recibirá retroalimentación inmediata. Al finalizar las 4 decisiones, podrá ver su resultado y descargarlo.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-indicator" id="progressIndicator">
+            <i class="fas fa-tasks"></i> Decisiones completadas: <span id="answeredCount">0</span> de 4
+        </div>
+
+        <!-- Decisions Container -->
+        <div class="decisions-container">
+            <!-- Decision 1 -->
+            <div class="decision-card" id="decision-1">
+                <div class="decision-header">
+                    <div class="decision-number">1</div>
+                    <div class="decision-title">¿Cómo realizar el diagnóstico?</div>
+                </div>
+                
+                <div class="decision-situation">
+                    El equipo propone utilizar únicamente un informe de años anteriores.
+                </div>
+
+                <div class="options-container">
+                    <div class="option-item" onclick="selectOption(1, 'A', true)">
+                        <div class="option-letter">A</div>
+                        <div class="option-text">Utilizarlo como fuente inicial, revisar su vigencia y complementarlo con información y consultas actuales.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(1, 'B', false)">
+                        <div class="option-letter">B</div>
+                        <div class="option-text">Mantenerlo como única fuente para terminar más rápido.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(1, 'C', false)">
+                        <div class="option-letter">C</div>
+                        <div class="option-text">Sustituir todos los datos por la opinión de una sola reunión.</div>
+                    </div>
+                </div>
+
+                <div class="feedback-box" id="feedback-1"></div>
+            </div>
+
+            <!-- Decision 2 -->
+            <div class="decision-card" id="decision-2">
+                <div class="decision-header">
+                    <div class="decision-number">2</div>
+                    <div class="decision-title">¿Cómo considerar la voz adolescente?</div>
+                </div>
+                
+                <div class="decision-situation">
+                    El grupo de adolescentes presenta propuestas diferentes de las previstas por las personas adultas.
+                </div>
+
+                <div class="options-container">
+                    <div class="option-item" onclick="selectOption(2, 'A', false)">
+                        <div class="option-letter">A</div>
+                        <div class="option-text">Pedirles que adapten sus opiniones a la propuesta existente.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(2, 'B', true)">
+                        <div class="option-letter">B</div>
+                        <div class="option-text">Escuchar sus razones, analizar los aportes y explicar cómo serán considerados.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(2, 'C', false)">
+                        <div class="option-letter">C</div>
+                        <div class="option-text">Incorporar sus nombres al documento como evidencia suficiente de participación.</div>
+                    </div>
+                </div>
+
+                <div class="feedback-box" id="feedback-2"></div>
+            </div>
+
+            <!-- Decision 3 -->
+            <div class="decision-card" id="decision-3">
+                <div class="decision-header">
+                    <div class="decision-number">3</div>
+                    <div class="decision-title">¿Cómo respaldar la propuesta?</div>
+                </div>
+                
+                <div class="decision-situation">
+                    La propuesta contiene objetivos y acciones, pero no identifica recursos.
+                </div>
+
+                <div class="options-container">
+                    <div class="option-item" onclick="selectOption(3, 'A', false)">
+                        <div class="option-letter">A</div>
+                        <div class="option-text">Aprobarla y considerar que el financiamiento se resolverá automáticamente.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(3, 'B', false)">
+                        <div class="option-letter">B</div>
+                        <div class="option-text">Trasladar a las familias toda la responsabilidad de financiarla.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(3, 'C', true)">
+                        <div class="option-letter">C</div>
+                        <div class="option-text">Precisar necesidades de recursos y coordinar su incorporación a la planificación y al presupuesto.</div>
+                    </div>
+                </div>
+
+                <div class="feedback-box" id="feedback-3"></div>
+            </div>
+
+            <!-- Decision 4 -->
+            <div class="decision-card" id="decision-4">
+                <div class="decision-header">
+                    <div class="decision-number">4</div>
+                    <div class="decision-title">¿Cómo conocer los resultados?</div>
+                </div>
+                
+                <div class="decision-situation">
+                    Después de comenzar la ejecución, se publican fotografías de actividades.
+                </div>
+
+                <div class="options-container">
+                    <div class="option-item" onclick="selectOption(4, 'A', true)">
+                        <div class="option-letter">A</div>
+                        <div class="option-text">Solicitar información sobre compromisos, ejecución de recursos y resultados, para contrastarla con lo planificado.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(4, 'B', false)">
+                        <div class="option-letter">B</div>
+                        <div class="option-text">Considerar las fotografías como prueba suficiente del cumplimiento de todos los objetivos.</div>
+                    </div>
+                    <div class="option-item" onclick="selectOption(4, 'C', false)">
+                        <div class="option-letter">C</div>
+                        <div class="option-text">Esperar hasta la próxima administración para revisar avances.</div>
+                    </div>
+                </div>
+
+                <div class="feedback-box" id="feedback-4"></div>
+            </div>
+        </div>
+
+        <!-- Check All Button -->
+        <button class="btn-check-all" id="btnCheckAll" onclick="showResults()" style="display: none;">
+            <i class="fas fa-chart-bar"></i> Ver resultados y descargar
+        </button>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-icon" id="resultsIcon"></div>
+            <h2 id="resultsTitle"></h2>
+            <div class="score-display" id="scoreDisplay"></div>
+            <div class="results-message" id="resultsMessage"></div>
+            
+            <div class="btn-group">
+                <button class="btn-primary" onclick="downloadResults()">
+                    <i class="fas fa-download"></i> Descargar resultados
+                </button>
+                <button class="btn-secondary" onclick="restartActivity()">
+                    <i class="fas fa-redo"></i> Repetir actividad
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let answers = {
+            1: null,
+            2: null,
+            3: null,
+            4: null
+        };
+
+        let correctAnswers = {
+            1: 'A',
+            2: 'B',
+            3: 'C',
+            4: 'A'
+        };
+
+        let feedbacks = {
+            1: {
+                correct: '¡Correcto! Un diagnóstico necesita contrastar fuentes y experiencias. La información previa puede ser útil, pero debe revisarse su pertinencia y complementarse con la participación de la población.',
+                incorrect: 'Revise su decisión. Un diagnóstico necesita contrastar fuentes y experiencias. La información previa puede ser útil, pero debe revisarse su pertinencia y complementarse con la participación de la población.'
+            },
+            2: {
+                correct: '¡Correcto! La participación requiere escuchar y considerar las opiniones. Registrar asistencia o nombres no demuestra, por sí mismo, que los aportes influyeron en las decisiones.',
+                incorrect: 'Revise su decisión. La participación requiere escuchar y considerar las opiniones. Registrar asistencia o nombres no demuestra, por sí mismo, que los aportes influyeron en las decisiones.'
+            },
+            3: {
+                correct: '¡Correcto! Las decisiones presupuestarias deben relacionarse con las políticas vigentes. También deben respetarse las competencias y responsabilidades de las instituciones involucradas.',
+                incorrect: 'Revise su decisión. Las decisiones presupuestarias deben relacionarse con las políticas vigentes. También deben respetarse las competencias y responsabilidades de las instituciones involucradas.'
+            },
+            4: {
+                correct: '¡Correcto! Las fotografías pueden documentar actividades. Para valorar el cumplimiento de una política se necesita información sobre acciones, recursos y resultados.',
+                incorrect: 'Revise su decisión. Las fotografías pueden documentar actividades. Para valorar el cumplimiento de una política se necesita información sobre acciones, recursos y resultados.'
+            }
+        };
+
+        function selectOption(decisionNum, option, isCorrect) {
+            // Check if already answered
+            if (answers[decisionNum] !== null) return;
+
+            // Record answer
+            answers[decisionNum] = { option, isCorrect };
+
+            // Get elements
+            const card = document.getElementById(`decision-${decisionNum}`);
+            const options = card.querySelectorAll('.option-item');
+            const feedbackBox = document.getElementById(`feedback-${decisionNum}`);
+
+            // Disable all options
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+                const letter = opt.querySelector('.option-letter').textContent;
+                if (letter === correctAnswers[decisionNum]) {
+                    opt.classList.add('correct');
+                } else if (letter === option && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            // Show feedback
+            feedbackBox.innerHTML = `
+                <h4><i class="fas fa-${isCorrect ? 'check-circle' : 'exclamation-circle'}"></i> 
+                ${isCorrect ? 'Respuesta correcta' : 'Respuesta incorrecta'}</h4>
+                <p>${feedbacks[decisionNum][isCorrect ? 'correct' : 'incorrect']}</p>
+            `;
+            feedbackBox.className = `feedback-box show ${isCorrect ? 'correct' : 'incorrect'}`;
+
+            // Mark card as answered
+            card.classList.add('answered');
+
+            // Update progress
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answered = Object.values(answers).filter(a => a !== null).length;
+            document.getElementById('answeredCount').textContent = answered;
+
+            // Show check button if all answered
+            if (answered === 4) {
+                document.getElementById('btnCheckAll').style.display = 'inline-flex';
+                document.getElementById('btnCheckAll').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function showResults() {
+            const correct = Object.values(answers).filter(a => a && a.isCorrect).length;
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsIcon = document.getElementById('resultsIcon');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const resultsMessage = document.getElementById('resultsMessage');
+
+            resultsSection.classList.remove('excellent', 'good', 'needs-review');
+            
+            if (correct === 4) {
+                resultsSection.classList.add('excellent');
+                resultsIcon.innerHTML = '<i class="fas fa-trophy"></i>';
+                resultsTitle.textContent = '¡Excelente trabajo!';
+                resultsMessage.innerHTML = 'Ha relacionado el marco legal con decisiones de participación, planificación y seguimiento. Demuestra una comprensión sólida de cómo aplicar los principios de protección integral en la gestión municipal.';
+            } else if (correct >= 2) {
+                resultsSection.classList.add('good');
+                resultsIcon.innerHTML = '<i class="fas fa-thumbs-up"></i>';
+                resultsTitle.textContent = 'Buen desempeño';
+                resultsMessage.innerHTML = 'Identificó varias actuaciones pertinentes. Revise las explicaciones de las decisiones que necesita fortalecer. Considere cómo cada decisión afecta el ejercicio de derechos de niñas, niños y adolescentes.';
+            } else {
+                resultsSection.classList.add('needs-review');
+                resultsIcon.innerHTML = '<i class="fas fa-book-reader"></i>';
+                resultsTitle.textContent = 'Necesita reforzar';
+                resultsMessage.innerHTML = 'Puede volver a las fichas de la lección y repetir el recorrido. Observe qué derecho y qué responsabilidad están involucrados en cada situación. La práctica le ayudará a mejorar.';
+            }
+
+            scoreDisplay.textContent = `${correct} de 4 decisiones acertadas`;
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function downloadResults() {
+            const correct = Object.values(answers).filter(a => a && a.isCorrect).length;
+            const date = new Date().toLocaleDateString('es-ES', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            let content = `RESULTADOS - ACTIVIDAD 2: UN MUNICIPIO TOMA DECISIONES\n`;
+            content += `=====================================================\n\n`;
+            content += `Fecha: ${date}\n`;
+            content += `Puntuación: ${correct} de 4 decisiones acertadas\n\n`;
+            
+            content += `DETALLE DE RESPUESTAS:\n`;
+            content += `----------------------\n\n`;
+
+            const decisions = [
+                { num: 1, title: '¿Cómo realizar el diagnóstico?', correct: 'A' },
+                { num: 2, title: '¿Cómo considerar la voz adolescente?', correct: 'B' },
+                { num: 3, title: '¿Cómo respaldar la propuesta?', correct: 'C' },
+                { num: 4, title: '¿Cómo conocer los resultados?', correct: 'A' }
+            ];
+
+            decisions.forEach(dec => {
+                const ans = answers[dec.num];
+                const status = ans.isCorrect ? '✓ CORRECTA' : '✗ INCORRECTA';
+                content += `Decisión ${dec.num}: ${dec.title}\n`;
+                content += `Su respuesta: ${ans.option} - ${status}\n`;
+                content += `Respuesta correcta: ${dec.correct}\n`;
+                content += feedbacks[dec.num][ans.isCorrect ? 'correct' : 'incorrect'] + '\n\n';
+            });
+
+            content += `\n=====================================================\n`;
+            content += `Actividad formativa - Curso PAMI\n`;
+
+            // Create blob and download
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Actividad2_Resultados_${date.replace(/\//g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function restartActivity() {
+            // Reset answers
+            answers = { 1: null, 2: null, 3: null, 4: null };
+            
+            // Reset UI
+            document.querySelectorAll('.decision-card').forEach(card => {
+                card.classList.remove('answered');
+                const options = card.querySelectorAll('.option-item');
+                options.forEach(opt => {
+                    opt.classList.remove('disabled', 'selected', 'correct', 'incorrect');
+                });
+                const feedback = card.querySelector('.feedback-box');
+                feedback.className = 'feedback-box';
+                feedback.innerHTML = '';
+            });
+
+            // Hide results
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('btnCheckAll').style.display = 'none';
+            
+            // Reset progress
+            document.getElementById('answeredCount').textContent = '0';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
