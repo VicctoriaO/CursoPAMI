@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repaso Integral - Módulo 2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f0d8 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 600px;
+            height: 800px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .progress-bar-container {
+            background: #ffffff;
+            padding: 12px 20px;
+            border-bottom: 2px solid #779610;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #779610;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #779610, #5a7a0a);
+            transition: width 0.4s ease;
+            border-radius: 4px;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .activity-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #779610;
+        }
+
+        .activity-header h1 {
+            color: #779610;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .activity-header .subtitle {
+            color: #393939;
+            font-size: 0.95rem;
+            font-style: italic;
+        }
+
+        .section-header-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 3px solid #779610;
+        }
+
+        .instructions-box {
+            background: linear-gradient(135deg, #fff9e6, #fff3cd);
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .instructions-box strong {
+            color: #856404;
+        }
+
+        .instructions-box i {
+            color: #856404;
+            margin-right: 5px;
+        }
+
+        /* Flip Cards - Fase 1 */
+        .flip-card {
+            background: transparent;
+            width: 100%;
+            height: 280px;
+            perspective: 1000px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .flip-card-front {
+            background: linear-gradient(135deg, #f0f5e0, #e8f0d0);
+            border: 3px solid #779610;
+            color: #393939;
+        }
+
+        .flip-card-front img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .flip-card-front h3 {
+            color: #779610;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .flip-card-front .hint {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .flip-card-back {
+            background: linear-gradient(135deg, #779610, #5a7a0a);
+            color: white;
+            transform: rotateY(180deg);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .flip-card-back h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            border-bottom: 2px solid white;
+            padding-bottom: 8px;
+        }
+
+        .flip-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .flip-btn {
+            background: #779610;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .flip-btn:hover {
+            background: #5a7a0a;
+        }
+
+        .flip-counter {
+            text-align: center;
+            color: #779610;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        /* Quiz */
+        .quiz-question {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #779610;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: #779610;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .question-text {
+            font-size: 1rem;
+            color: #393939;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quiz-option {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-option img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        .quiz-option:hover:not(.disabled) {
+            border-color: #779610;
+            background: #f0f5e0;
+        }
+
+        .quiz-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .quiz-option.disabled {
+            cursor: not-allowed;
+        }
+
+        .feedback-quiz {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .feedback-quiz.show {
+            display: block;
+        }
+
+        .feedback-quiz.correct {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+            color: #155724;
+        }
+
+        .feedback-quiz.incorrect {
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            color: #856404;
+        }
+
+        .loading-icon {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading-icon.show {
+            display: block;
+        }
+
+        .loading-icon i {
+            font-size: 3rem;
+            color: #779610;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Route Steps - Flip Cards */
+        .route-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .route-flip-card {
+            background: transparent;
+            width: 100%;
+            height: 180px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .route-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .route-flip-card.flipped .route-flip-inner {
+            transform: rotateY(180deg);
+        }
+
+        .route-flip-front, .route-flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            text-align: center;
+            border: 3px solid #779610;
+        }
+
+        .route-flip-front {
+            background: linear-gradient(135deg, #f0f5e0, #ffffff);
+        }
+
+        .route-flip-front img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+
+        .route-flip-front h4 {
+            font-size: 0.85rem;
+            color: #779610;
+            font-weight: 700;
+        }
+
+        .route-flip-front .step-num {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #779610;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .route-flip-front .hint-text {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .route-flip-back {
+            background: linear-gradient(135deg, #779610, #5a7a0a);
+            color: white;
+            transform: rotateY(180deg);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            overflow-y: auto;
+        }
+
+        .route-flip-back h4 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            border-bottom: 2px solid white;
+            padding-bottom: 5px;
+        }
+
+        /* Legal Instruments - Interactive Accordion */
+        .legal-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .legal-item {
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #779610;
+            overflow: hidden;
+        }
+
+        .legal-header {
+            background: linear-gradient(135deg, #f0f5e0, #ffffff);
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+
+        .legal-header:hover {
+            background: linear-gradient(135deg, #e8f0d0, #f0f5e0);
+        }
+
+        .legal-header h4 {
+            color: #779610;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legal-header i {
+            color: #779610;
+        }
+
+        .expand-icon {
+            font-size: 1.2rem;
+            color: #779610;
+            transition: transform 0.3s;
+        }
+
+        .legal-item.expanded .expand-icon {
+            transform: rotate(45deg);
+        }
+
+        .legal-content {
+            display: none;
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .legal-item.expanded .legal-content {
+            display: block;
+            max-height: 500px;
+            padding: 0 15px 15px;
+        }
+
+        .legal-description {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            border-left: 3px solid #779610;
+        }
+
+        .articles-section {
+            background: linear-gradient(135deg, #fff9e6, #fff3cd);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .articles-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .articles-content {
+            display: none;
+            font-size: 0.85rem;
+            color: #393939;
+            padding-top: 10px;
+            border-top: 1px dashed #ffc107;
+            margin-top: 10px;
+        }
+
+        .articles-content.show {
+            display: block;
+        }
+
+        .articles-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .articles-content li {
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .articles-content li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #779610;
+        }
+
+        /* Results */
+        .results-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .results-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .results-container h2 {
+            color: #779610;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .score-big {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #779610;
+            margin: 15px 0;
+        }
+
+        .results-message {
+            background: #f0f5e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .btn-download {
+            background: #779610;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 10px 5px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-download:hover {
+            background: #5a7a0a;
+            transform: translateY(-2px);
+        }
+
+        .btn-restart {
+            background: #2e86ab;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-restart:hover {
+            background: #1a5276;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: #f9f9f9;
+            border-top: 2px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .nav-btn {
+            background: #779610;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #5a7a0a;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.secondary {
+            background: #e0e0e0;
+            color: #393939;
+        }
+
+        .nav-btn.secondary:hover:not(:disabled) {
+            background: #d0d0d0;
+        }
+
+        @media (max-width: 640px) {
+            .main-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: #779610;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="progress-bar-container">
+            <div class="progress-info">
+                <span id="progress-text">Inicio</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Pantalla 0: Inicio -->
+            <div class="screen active" id="screen-0">
+                <div class="activity-header">
+                    <h1><i class="fas fa-graduation-cap"></i> Repaso Integral</h1>
+                    <p class="subtitle">¡Preparémonos para la evaluación del Módulo 2!</p>
+                </div>
+
+                <div class="instructions-box">
+                    <p><i class="fas fa-info-circle"></i> <strong>Instrucciones:</strong> Esta actividad tiene 4 fases: (1) Tarjetas de repaso con 5 conceptos clave, (2) Evaluación con 5 preguntas, (3) Las 6 fases de la ruta (tarjetas interactivas), y (4) Instrumentos legales (desplegables). Al finalizar podrá descargar sus resultados en PDF.</p>
+                </div>
+
+                <div style="text-align: center; padding: 20px;">
+                    <i class="fas fa-book-open" style="font-size: 4rem; color: #779610; margin-bottom: 15px;"></i>
+                    <h3 style="color: #393939; margin-bottom: 10px;">¿Qué repasaremos?</h3>
+                    <ul style="list-style: none; text-align: left; font-size: 0.9rem;">
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check-circle" style="color: #779610;"></i> Sujetos de derechos y protección integral</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check-circle" style="color: #779610;"></i> Las 6 fases de la ruta municipal</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check-circle" style="color: #779610;"></i> Tipos de políticas públicas</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check-circle" style="color: #779610;"></i> Presupuesto y asignación de recursos</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-check-circle" style="color: #779610;"></i> Marco legal y participación</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Pantalla 1: Fase 1 - Tarjetas de Repaso -->
+            <div class="screen" id="screen-1">
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png" alt="Participación" class="section-header-image">
+                <div class="activity-header">
+                    <h1><i class="fas fa-clone"></i> Fase 1: Tarjetas de Repaso</h1>
+                </div>
+
+                <div class="instructions-box">
+                    <p><i class="fas fa-hand-pointer"></i> <strong>Cómo usar:</strong> Haga clic en la tarjeta o use los botones para ver la información. Explore las 5 tarjetas antes de continuar.</p>
+                </div>
+
+                <div class="flip-counter" id="flip-counter">Tarjeta 1 de 5</div>
+
+                <div class="flip-card" id="flip-card" onclick="toggleFlip()">
+                    <div class="flip-card-inner" id="flip-inner">
+                        <div class="flip-card-front" id="card-front">
+                            <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png" alt="Icono" id="card-image">
+                            <h3 id="card-title">Sujetos de Derechos</h3>
+                            <p id="card-preview">Niñas, niños y adolescentes como protagonistas</p>
+                            <p class="hint"><i class="fas fa-sync-alt"></i> Clic para ver más</p>
+                        </div>
+                        <div class="flip-card-back" id="card-back">
+                            <h4 id="card-back-title">Concepto Clave</h4>
+                            <p id="card-back-content">Contenido</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-controls">
+                    <button class="flip-btn" onclick="prevCard()"><i class="fas fa-arrow-left"></i> Anterior</button>
+                    <button class="flip-btn" onclick="nextCard()">Siguiente <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Pantalla 7: Fase 2 - Evaluación -->
+            <div class="screen" id="screen-7">
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo7.png" alt="Evaluación" class="section-header-image">
+                <div class="activity-header">
+                    <h1><i class="fas fa-question-circle"></i> Fase 2: Evaluación</h1>
+                </div>
+
+                <div class="instructions-box">
+                    <p><i class="fas fa-lightbulb"></i> <strong>Importante:</strong> Seleccione la mejor respuesta. Recibirá retroalimentación inmediata. Haga clic en "Siguiente" para continuar.</p>
+                </div>
+
+                <div class="quiz-question" id="quiz-container">
+                </div>
+
+                <div class="loading-icon" id="loading-icon">
+                    <i class="fas fa-spinner"></i>
+                    <p style="margin-top: 15px; color: #779610; font-weight: 600;">Cargando siguiente pregunta...</p>
+                </div>
+            </div>
+
+            <!-- Pantalla 13: Fase 3 - Las 6 Fases (Flip Cards) -->
+            <div class="screen" id="screen-13">
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo3.png" alt="Ruta" class="section-header-image">
+                <div class="activity-header">
+                    <h1><i class="fas fa-route"></i> Fase 3: Las 6 Fases de la Ruta</h1>
+                </div>
+
+                <div class="instructions-box">
+                    <p><i class="fas fa-hand-pointer"></i> <strong>Interactivo:</strong> Toque cada tarjeta para voltearla y descubrir qué representa e implica cada fase en el proceso de formulación de políticas públicas.</p>
+                </div>
+
+                <div class="route-container" id="route-container">
+                    <!-- Las tarjetas se generan dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Pantalla 14: Fase 4 - Instrumentos Legales (Interactivo) -->
+            <div class="screen" id="screen-14">
+                <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png" alt="Marco Legal" class="section-header-image">
+                <div class="activity-header">
+                    <h1><i class="fas fa-gavel"></i> Fase 4: Instrumentos Legales</h1>
+                </div>
+
+                <div class="instructions-box">
+                    <p><i class="fas fa-info-circle"></i> <strong>Interactivo:</strong> Haga clic en cada ley para ver cómo respalda la ruta. Luego presione el botón <strong>+</strong> para descubrir los artículos específicos.</p>
+                </div>
+
+                <div class="legal-container" id="legal-instruments-container">
+                    <!-- Los instrumentos legales se generan dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Pantalla 15: Resultados -->
+            <div class="screen" id="screen-15">
+                <div class="results-container" id="results-content">
+                    <div class="results-icon" id="results-icon"></div>
+                    <h2 id="results-title"></h2>
+                    <div class="score-big" id="score-display"></div>
+                    <div class="results-message" id="results-message"></div>
+                    
+                    <button class="btn-download" onclick="downloadPDF()">
+                        <i class="fas fa-file-pdf"></i> Descargar resultados en PDF
+                    </button>
+                    <button class="btn-restart" onclick="restartActivity()">
+                        <i class="fas fa-redo"></i> Repetir actividad
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn secondary" id="btn-prev" onclick="prevScreen()">
+                <i class="fas fa-arrow-left"></i> Anterior
+            </button>
+            <button class="nav-btn" id="btn-next" onclick="nextScreen()">
+                Siguiente <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Datos de tarjetas Fase 1
+        const cards = [
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png',
+                title: 'Sujetos de Derechos',
+                preview: 'Niñas, niños y adolescentes como protagonistas',
+                backTitle: 'Concepto Clave - LEYPINA Art. 3',
+                backContent: 'La LEYPINA reconoce a niñas, niños y adolescentes como sujetos de derechos con participación activa. El Estado debe respetar sus derechos y deberes, permitiendo que ejerzan los derechos reconocidos en la Constitución y tratados internacionales.'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo3.png',
+                title: 'Las 6 Fases de la Ruta',
+                preview: 'Proceso de formulación de políticas públicas',
+                backTitle: 'Secuencia Completa',
+                backContent: '1) Organización y participación\n2) Diagnóstico y consultas\n3) Elaboración de propuestas\n4) Asignación de presupuesto\n5) Seguimiento y auditoría social\n6) Transparencia y rendición de cuentas'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo4.png',
+                title: 'Tipos de Políticas',
+                preview: 'Clasificación según LEYPINA Art. 82',
+                backTitle: '4 Tipos de Políticas - Art. 82',
+                backContent: '• Sociales básicas: garantizan derechos a todos\n• Asistencia social: atienden pobreza extrema\n• Protección especial: recuperación de derechos vulnerados\n• Garantía: garantías procesales mínimas'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo5.png',
+                title: 'Presupuesto Municipal',
+                preview: 'Asignación obligatoria del 0.5%',
+                backTitle: 'Base Legal - Código Municipal',
+                backContent: 'Art. 36: mínimo 0.5% del situado constitucional para Comisión 9 (familia, mujer, niñez, juventud). Art. 131: alcalde formula presupuesto coordinado con políticas públicas vigentes.'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo7.png',
+                title: 'Participación de Niñez',
+                preview: 'Derecho a ser escuchados',
+                backTitle: 'Marco Legal - Convención Art. 12',
+                backContent: 'Convención Art. 12: derecho a expresar opinión libremente. LEYPINA Art. 5: interés superior del niño. Art. 36: formación de organizaciones estudiantiles y juveniles.'
+            }
+        ];
+
+        // Datos del quiz
+        const quizQuestions = [
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png',
+                question: 'Según el Art. 80 de la LEYPINA, la protección integral debe realizarse a nivel:',
+                options: ['Solo jurídico', 'Social, económico y jurídico', 'Solo económico', 'Solo social'],
+                correct: 1,
+                feedback: 'El Art. 80 establece que la protección integral comprende las dimensiones social, económica y jurídica.'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo5.png',
+                question: '¿Qué porcentaje mínimo del situado constitucional debe asignarse a la Comisión 9?',
+                options: ['0.1%', '1.0%', '0.5%', '5.0%'],
+                correct: 2,
+                feedback: 'El Art. 36 del Código Municipal establece un monto no menor del 0.5% del situado constitucional.'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo3.png',
+                question: 'Para que una consulta vecinal sea vinculante, debe participar al menos:',
+                options: ['10% de vecinos', '20% de vecinos empadronados', '50% de vecinos', '30% de vecinos'],
+                correct: 1,
+                feedback: 'El Art. 64 del Código Municipal requiere participación del 20% de vecinos empadronados para que sea vinculante.'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo4.png',
+                question: '¿Cuál es la primera fase de la ruta de formulación de políticas públicas?',
+                options: ['Diagnóstico', 'Elaboración de propuestas', 'Organización y participación', 'Asignación de presupuesto'],
+                correct: 2,
+                feedback: 'La primera fase es Organización y participación, donde se convocan actores y se acuerda cómo participarán.'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo7.png',
+                question: 'Según la Convención sobre los Derechos del Niño, el Art. 12 establece:',
+                options: ['Derecho a la educación', 'Derecho a expresar opinión libremente', 'Derecho a la salud', 'Derecho al juego'],
+                correct: 1,
+                feedback: 'El Art. 12 reconoce el derecho del niño a expresar su opinión libremente y ser escuchado.'
+            }
+        ];
+
+        // Datos de las 6 fases de la ruta (Flip Cards)
+        const routeSteps = [
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png',
+                title: 'Organización y Participación',
+                content: 'Representa: La convocatoria formal a todos los actores sociales del municipio.\n\nImplica: Organización de comisiones (Art. 36 Código Municipal - Comisión 9 obligatoria), establecimiento de mecanismos de participación maya, xinca, garífuna y no indígena (Ley de Consejos Art. 1 y 14), y promoción del trabajo de asociaciones civiles (Art. 53 Código Municipal).'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo3.png',
+                title: 'Diagnóstico y Consultas',
+                content: 'Representa: La identificación técnica y participativa de necesidades reales.\n\nImplica: Recopilación de información pública (Art. 1 Ley de Acceso a Información), priorización de necesidades por COCODES (Art. 12 y 14 Ley de Consejos), y realización de consultas vecinales (10% firmas para solicitar, 20% participación para vincular - Art. 63-65 Código Municipal).'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo4.png',
+                title: 'Elaboración de Propuestas',
+                content: 'Representa: La redacción técnica del documento de política pública.\n\nImplica: Formulación de políticas de protección integral según Art. 81 LEYPINA (conjunto de acciones para garantizar pleno goce de derechos), participación activa de vecinos (Art. 17 Código Municipal), y promoción por COMUDE y COCODES (Art. 12 y 14 Ley de Consejos).'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo5.png',
+                title: 'Asignación de Presupuesto',
+                content: 'Representa: La garantía financiera para ejecutar las acciones planificadas.\n\nImplica: Mínimo 0.5% del situado constitucional para Comisión 9 (Art. 36 Código Municipal), formulación coordinada con políticas públicas vigentes (Art. 131), distribución equitativa considerando densidad poblacional, NBI, indicadores de salud y educación, y aseguramiento de recursos técnicos y financieros (Art. 5 y 16 Ley Descentralización).'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo6.png',
+                title: 'Seguimiento y Auditoría',
+                content: 'Representa: La verificación ciudadana del cumplimiento de lo planificado.\n\nImplica: Seguimiento por el alcalde (Art. 9 Código Municipal), verificación y evaluación por COMUDE y COCODES (Art. 12 y 14 Ley de Consejos), auditoría social facultada a comunidades organizadas (Art. 19 Ley Descentralización), e información pública disponible (Art. 139 Código Municipal).'
+            },
+            {
+                image: 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo7.png',
+                title: 'Transparencia y Rendición',
+                content: 'Representa: El derecho ciudadano a estar informado y la obligación de informar.\n\nImplica: Información regular a vecinos (Art. 17 Código Municipal), reporte de ejecución presupuestaria por COMUDE (Art. 12 Ley de Consejos), principio de máxima publicidad obligatorio (Art. 1 Ley de Acceso a Información), y rendición de cuentas favorecida por el Estado.'
+            }
+        ];
+
+        // Datos de instrumentos legales (Interactivo)
+        const legalInstruments = [
+            {
+                name: 'LEYPINA (Decreto 27-2003)',
+                description: 'Ley de Protección Integral de la Niñez y Adolescencia',
+                howSupports: 'Define a niñas, niños y adolescentes como sujetos de derechos. Establece las 4 tipos de políticas públicas y su clasificación. Obliga a formular políticas con participación de la sociedad para garantizar el pleno goce de derechos.',
+                articles: [
+                    'Art. 3: Sujeto de derechos - El Estado debe respetar los derechos y deberes de los padres para orientar a sus hijos',
+                    'Art. 5: Interés superior del niño - Garantía que se aplica en toda decisión que afecte a la niñez',
+                    'Art. 36: Educación integral - Formación de organizaciones estudiantiles y juveniles',
+                    'Art. 80: Protección integral - Dimensiones social, económica y jurídica',
+                    'Art. 81: Definición de políticas - Conjunto de acciones formuladas por Comisiones de Niñez',
+                    'Art. 82: Clasificación - 4 tipos de políticas (sociales básicas, asistencia, protección especial, garantía)'
+                ]
+            },
+            {
+                name: 'Código Municipal (Decreto 12-2002)',
+                description: 'Marco regulatorio de la gestión municipal',
+                howSupports: 'Establece derechos y obligaciones de vecinos. Obliga a conformar Comisión 9 con 0.5% del situado. Regula consultas vecinales y acceso a información municipal. Define atribuciones del Concejo y alcalde.',
+                articles: [
+                    'Art. 9: Concejo Municipal - Órgano colegiado superior de decisión',
+                    'Art. 17: Derechos de vecinos - Participar, ser informado, integrar auditoría social',
+                    'Art. 35: Atribuciones del Concejo - Convocar sectores para formulación de políticas',
+                    'Art. 36: Comisiones - Comisión 9 obligatoria (familia, mujer, niñez, juventud) con 0.5%',
+                    'Art. 38: Consultas a COCODES - Cuando la importancia del tema lo amerite',
+                    'Art. 53: Atribuciones del alcalde - Velar por cumplimiento de políticas',
+                    'Art. 63-65: Consultas vecinales - 10% firmas solicitan, 20% participación vincula',
+                    'Art. 131: Presupuesto - Formulación coordinada con políticas públicas vigentes',
+                    'Art. 139: Información pública - Acceso a registros y expedientes municipales'
+                ]
+            },
+            {
+                name: 'Ley de Consejos (Decreto 11-2002)',
+                description: 'Sistema de participación en la gestión pública',
+                howSupports: 'Crea el sistema de participación maya, xinca, garífuna y no indígena. COCODES priorizan necesidades, COMUDE articula a nivel municipal. Ambos promueven políticas de niñez y dan seguimiento.',
+                articles: [
+                    'Art. 1: Naturaleza - Medio principal de participación de la población',
+                    'Art. 3: Objetivo - Organizar administración pública mediante políticas de desarrollo',
+                    'Art. 12: Funciones COMUDE - Promover políticas, dar seguimiento, evaluar, informar',
+                    'Art. 14: Funciones COCODES - Formular políticas basadas en necesidades priorizadas'
+                ]
+            },
+            {
+                name: 'Ley Descentralización (Decreto 14-2002)',
+                description: 'Transferencia de competencias y recursos',
+                howSupports: 'Facilita participación y control social. Asegura recursos materiales, técnicos y financieros. Obliga a adecuar presupuesto a políticas de descentralización. Faculta auditoría social.',
+                articles: [
+                    'Art. 5: Objetivos - Facilitar participación y control social, asegurar recursos',
+                    'Art. 16: Presupuesto municipal - Adecuación a políticas de descentralización',
+                    'Art. 19: Fiscalización social - Comunidades organizadas pueden realizar auditoría'
+                ]
+            },
+            {
+                name: 'Ley Acceso Información (Decreto 57-2008)',
+                description: 'Transparencia y derecho a la información',
+                howSupports: 'Garantiza derecho a solicitar información sin discriminación. Establece principio de máxima publicidad. Favorece rendición de cuentas. Permite obtener datos para diagnóstico.',
+                articles: [
+                    'Art. 1 (Inciso 1): Garantizar derecho a solicitar información pública',
+                    'Art. 1 (Inciso 3): Garantizar transparencia de la administración pública',
+                    'Art. 1 (Inciso 4): Principio de máxima publicidad obligatorio',
+                    'Art. 1 (Inciso 6): Favorecer rendición de cuentas a los gobernados'
+                ]
+            },
+            {
+                name: 'Convención Derechos del Niño',
+                description: 'Tratado internacional de derechos humanos',
+                howSupports: 'Reconoce derecho de niños a expresar opinión libremente en asuntos que les afectan. Garantiza libertad de asociación y reunión pacífica. Base internacional del enfoque de derechos.',
+                articles: [
+                    'Art. 12: Derecho a ser escuchado - Expresar opinión libremente y ser considerado según edad y madurez',
+                    'Art. 15: Libertad de asociación - Derecho a reunirse pacíficamente'
+                ]
+            }
+        ];
+
+        let currentScreen = 0;
+        let currentCard = 0;
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = [];
+        let cardFlipped = false;
+        const totalScreens = 16;
+
+        function goToScreen(index) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + index).classList.add('active');
+            currentScreen = index;
+            updateProgress();
+            updateNavButtons();
+            
+            if (index === 1) { initFlipCard(); }
+            if (index === 7) { initQuiz(); }
+            if (index === 13) { initRoute(); }
+            if (index === 14) { initLegalInstruments(); }
+            if (index === 15) { showResults(); }
+        }
+
+        function nextScreen() {
+            if (currentScreen < totalScreens - 1) {
+                let next = currentScreen + 1;
+                if (currentScreen === 1) next = 7;
+                if (currentScreen === 7) next = 13;
+                if (currentScreen === 13) next = 14;
+                if (currentScreen === 14) next = 15;
+                goToScreen(next);
+            }
+        }
+
+        function prevScreen() {
+            if (currentScreen > 0) {
+                let prev = currentScreen - 1;
+                if (currentScreen === 7) prev = 1;
+                if (currentScreen === 13) prev = 7;
+                if (currentScreen === 14) prev = 13;
+                if (currentScreen === 15) prev = 14;
+                goToScreen(prev);
+            }
+        }
+
+        function updateNavButtons() {
+            document.getElementById('btn-prev').disabled = currentScreen === 0;
+            document.getElementById('btn-next').disabled = currentScreen === 15;
+        }
+
+        function updateProgress() {
+            const percent = Math.round((currentScreen / (totalScreens - 1)) * 100);
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-percent').textContent = percent + '%';
+            
+            const labels = ['Inicio', 'Tarjetas', 'Tarjetas', 'Tarjetas', 'Tarjetas', 'Tarjetas', 'Tarjetas', 'Evaluación', 'Evaluación', 'Evaluación', 'Evaluación', 'Evaluación', 'Evaluación', 'Ruta', 'Legal', 'Resultados'];
+            document.getElementById('progress-text').textContent = labels[currentScreen] || 'Progreso';
+        }
+
+        // Fase 1 - Flip Cards
+        function initFlipCard() {
+            currentCard = 0;
+            updateCard();
+        }
+
+        function updateCard() {
+            const card = cards[currentCard];
+            document.getElementById('card-image').src = card.image;
+            document.getElementById('card-title').textContent = card.title;
+            document.getElementById('card-preview').textContent = card.preview;
+            document.getElementById('card-back-title').textContent = card.backTitle;
+            document.getElementById('card-back-content').textContent = card.backContent;
+            document.getElementById('flip-counter').textContent = `Tarjeta ${currentCard + 1} de ${cards.length}`;
+            document.getElementById('flip-card').classList.remove('flipped');
+            cardFlipped = false;
+        }
+
+        function toggleFlip() {
+            document.getElementById('flip-card').classList.toggle('flipped');
+            cardFlipped = !cardFlipped;
+        }
+
+        function nextCard() {
+            if (currentCard < cards.length) {
+                currentCard++;
+                if (currentCard === cards.length) {
+                    document.getElementById('flip-counter').textContent = '¿Desea repasar o continuar?';
+                    document.getElementById('card-title').textContent = '¡Completado!';
+                    document.getElementById('card-preview').textContent = 'Puede repasar las tarjetas o avanzar a la evaluación';
+                    document.getElementById('card-image').src = 'https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/main/M2Arecursos/IMGinfo2.png';
+                } else {
+                    updateCard();
+                }
+            }
+        }
+
+        function prevCard() {
+            if (currentCard > 0) {
+                currentCard--;
+                updateCard();
+            }
+        }
+
+        // Fase 2 - Quiz
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            document.getElementById('loading-icon').classList.remove('show');
+            const q = quizQuestions[currentQuestion];
+            const container = document.getElementById('quiz-container');
+            
+            container.innerHTML = `
+                <div class="question-text">
+                    <span class="question-number">${currentQuestion + 1}</span>
+                    ${q.question}
+                </div>
+                <div class="quiz-options">
+                    ${q.options.map((opt, idx) => `
+                        <div class="quiz-option" onclick="selectAnswer(${idx})" id="option-${idx}">
+                            <img src="${q.image}" alt="Opción">
+                            <span>${String.fromCharCode(65 + idx)}. ${opt}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="feedback-quiz" id="feedback"></div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="nav-btn" id="btn-next-question" onclick="nextQuestion()" style="display: none;">
+                        Siguiente <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function selectAnswer(idx) {
+            const q = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('feedback');
+            const nextBtn = document.getElementById('btn-next-question');
+            
+            options.forEach(opt => opt.classList.add('disabled'));
+            
+            if (idx === q.correct) {
+                options[idx].classList.add('correct');
+                feedback.className = 'feedback-quiz show correct';
+                feedback.innerHTML = `<i class="fas fa-check-circle"></i> <strong>¡Correcto!</strong> ${q.feedback}`;
+                score++;
+            } else {
+                options[idx].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                feedback.className = 'feedback-quiz show incorrect';
+                feedback.innerHTML = `<i class="fas fa-times-circle"></i> <strong>Incorrecto.</strong> ${q.feedback}`;
+            }
+            
+            answers.push({ 
+                question: currentQuestion + 1, 
+                selected: idx, 
+                correct: q.correct, 
+                isCorrect: idx === q.correct,
+                questionText: q.question,
+                selectedText: q.options[idx],
+                correctText: q.options[q.correct],
+                feedback: q.feedback
+            });
+            
+            nextBtn.style.display = 'inline-flex';
+        }
+
+        function nextQuestion() {
+            document.getElementById('loading-icon').classList.add('show');
+            
+            setTimeout(() => {
+                if (currentQuestion < quizQuestions.length - 1) {
+                    currentQuestion++;
+                    showQuestion();
+                } else {
+                    goToScreen(13);
+                }
+            }, 1000);
+        }
+
+        // Fase 3 - Route Steps (Flip Cards)
+        function initRoute() {
+            const container = document.getElementById('route-container');
+            container.innerHTML = routeSteps.map((step, index) => `
+                <div class="route-flip-card" onclick="toggleRouteCard(${index})">
+                    <div class="route-flip-inner" id="route-inner-${index}">
+                        <div class="route-flip-front">
+                            <div class="step-num">${index + 1}</div>
+                            <img src="${step.image}" alt="Fase ${index + 1}">
+                            <h4>${step.title}</h4>
+                            <p class="hint-text"><i class="fas fa-sync-alt"></i> Clic para ver</p>
+                        </div>
+                        <div class="route-flip-back">
+                            <h4>Fase ${index + 1}</h4>
+                            <p>${step.content}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleRouteCard(index) {
+            const card = document.getElementById(`route-inner-${index}`).parentElement;
+            card.classList.toggle('flipped');
+        }
+
+        // Fase 4 - Legal Instruments (Interactive Accordion)
+        function initLegalInstruments() {
+            const container = document.getElementById('legal-instruments-container');
+            container.innerHTML = legalInstruments.map((instrument, index) => `
+                <div class="legal-item" id="legal-item-${index}">
+                    <div class="legal-header" onclick="toggleLegalItem(${index})">
+                        <h4><i class="fas fa-gavel"></i> ${instrument.name}</h4>
+                        <i class="fas fa-plus expand-icon"></i>
+                    </div>
+                    <div class="legal-content">
+                        <div class="legal-description">
+                            <p><strong>${instrument.description}</strong></p>
+                            <p style="margin-top: 8px; font-style: italic;"><i class="fas fa-lightbulb"></i> ${instrument.howSupports}</p>
+                        </div>
+                        <div class="articles-section">
+                            <div class="articles-header" onclick="toggleArticles(${index})">
+                                <span><i class="fas fa-book"></i> Ver artículos específicos</span>
+                                <i class="fas fa-plus-circle" id="articles-icon-${index}"></i>
+                            </div>
+                            <div class="articles-content" id="articles-content-${index}">
+                                <ul>
+                                    ${instrument.articles.map(art => `<li>${art}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleLegalItem(index) {
+            const item = document.getElementById(`legal-item-${index}`);
+            item.classList.toggle('expanded');
+        }
+
+        function toggleArticles(index) {
+            const content = document.getElementById(`articles-content-${index}`);
+            const icon = document.getElementById(`articles-icon-${index}`);
+            content.classList.toggle('show');
+            icon.style.transform = content.classList.contains('show') ? 'rotate(45deg)' : 'rotate(0deg)';
+        }
+
+        // Fase 5 - Results
+        function showResults() {
+            const icon = document.getElementById('results-icon');
+            const title = document.getElementById('results-title');
+            const scoreDisplay = document.getElementById('score-display');
+            const message = document.getElementById('results-message');
+            
+            scoreDisplay.textContent = `${score} de ${quizQuestions.length}`;
+            
+            if (score >= 4) {
+                icon.innerHTML = '<i class="fas fa-trophy" style="color: #f18f01;"></i>';
+                title.textContent = '¡Excelente trabajo!';
+                message.textContent = 'Ha demostrado un dominio sólido del marco legal. Está bien preparado para la evaluación del módulo.';
+            } else if (score >= 3) {
+                icon.innerHTML = '<i class="fas fa-thumbs-up" style="color: #2e86ab;"></i>';
+                title.textContent = '¡Buen avance!';
+                message.textContent = 'Tiene buena base, pero revise los conceptos donde falló antes de la evaluación.';
+            } else {
+                icon.innerHTML = '<i class="fas fa-book-reader" style="color: #a23b72;"></i>';
+                title.textContent = 'Necesita reforzar';
+                message.textContent = 'Le recomendamos revisar las fichas de la lección y repetir esta actividad.';
+            }
+        }
+
+        // Download PDF
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            pdf.setFillColor(245, 247, 250);
+            pdf.rect(0, 0, 210, 297, 'F');
+            
+            pdf.setFillColor(119, 150, 16);
+            pdf.rect(0, 0, 210, 50, 'F');
+            
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(24);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Resultados - Repaso Integral', 105, 25, { align: 'center' });
+            pdf.setFontSize(14);
+            pdf.text('Módulo 2: Marco Legal', 105, 38, { align: 'center' });
+            
+            pdf.setTextColor(57, 57, 57);
+            pdf.setFontSize(11);
+            pdf.setFont(undefined, 'normal');
+            const fecha = new Date().toLocaleDateString('es-ES', { 
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            pdf.text(`Fecha: ${fecha}`, 105, 65, { align: 'center' });
+            
+            pdf.setFillColor(240, 245, 224);
+            pdf.roundedRect(20, 75, 170, 40, 5, 5, 'F');
+            pdf.setDrawColor(119, 150, 16);
+            pdf.setLineWidth(1);
+            pdf.roundedRect(20, 75, 170, 40, 5, 5, 'S');
+            
+            pdf.setTextColor(119, 150, 16);
+            pdf.setFontSize(16);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Puntuación Obtenida', 105, 92, { align: 'center' });
+            pdf.setFontSize(28);
+            pdf.text(`${score} de ${quizQuestions.length} correctas`, 105, 108, { align: 'center' });
+            
+            const porcentaje = Math.round((score / quizQuestions.length) * 100);
+            pdf.setFontSize(14);
+            pdf.text(`${porcentaje}% de aciertos`, 105, 120, { align: 'center' });
+            
+            pdf.setTextColor(57, 57, 57);
+            pdf.setFontSize(16);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Detalle de Respuestas', 20, 145);
+            
+            pdf.setDrawColor(119, 150, 16);
+            pdf.setLineWidth(0.5);
+            pdf.line(20, 148, 190, 148);
+            
+            let yPos = 160;
+            answers.forEach((ans, idx) => {
+                pdf.setFillColor(119, 150, 16);
+                pdf.circle(25, yPos - 2, 4, 'F');
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFontSize(10);
+                pdf.setFont(undefined, 'bold');
+                pdf.text(`${idx + 1}`, 25, yPos, { align: 'center' });
+                
+                pdf.setTextColor(ans.isCorrect ? 40 : 220, ans.isCorrect ? 167 : 53, ans.isCorrect ? 69 : 69);
+                pdf.setFontSize(11);
+                pdf.text(ans.isCorrect ? '✓ Correcta' : ' Incorrecta', 35, yPos);
+                
+                pdf.setTextColor(57, 57, 57);
+                pdf.setFontSize(9);
+                pdf.setFont(undefined, 'normal');
+                const preguntaCorta = ans.questionText.length > 70 ? ans.questionText.substring(0, 70) + '...' : ans.questionText;
+                pdf.text(preguntaCorta, 35, yPos + 6);
+                
+                yPos += 8;
+                pdf.setTextColor(119, 150, 16);
+                pdf.setFontSize(8);
+                pdf.setFont(undefined, 'bold');
+                pdf.text(`Su respuesta: ${String.fromCharCode(65 + ans.selected)} - ${ans.selectedText}`, 35, yPos);
+                yPos += 5;
+                pdf.text(`Respuesta correcta: ${String.fromCharCode(65 + ans.correct)} - ${ans.correctText}`, 35, yPos);
+                
+                if (!ans.isCorrect) {
+                    yPos += 5;
+                    pdf.setTextColor(133, 100, 4);
+                    pdf.setFontSize(8);
+                    pdf.setFont(undefined, 'italic');
+                    const feedbackCorto = ans.feedback.length > 90 ? ans.feedback.substring(0, 90) + '...' : ans.feedback;
+                    pdf.text(`Retroalimentación: ${feedbackCorto}`, 35, yPos);
+                }
+                
+                yPos += 12;
+                pdf.setDrawColor(224, 224, 224);
+                pdf.line(20, yPos - 2, 190, yPos - 2);
+            });
+            
+            yPos += 10;
+            pdf.setFillColor(240, 245, 224);
+            pdf.roundedRect(20, yPos, 170, 35, 5, 5, 'F');
+            pdf.setDrawColor(119, 150, 16);
+            pdf.roundedRect(20, yPos, 170, 35, 5, 5, 'S');
+            
+            pdf.setTextColor(119, 150, 16);
+            pdf.setFontSize(12);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Mensaje Final', 105, yPos + 12, { align: 'center' });
+            
+            pdf.setTextColor(57, 57, 57);
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'normal');
+            let mensajeFinal = '';
+            if (score >= 4) mensajeFinal = '¡Excelente! Está bien preparado para la evaluación.';
+            else if (score >= 3) mensajeFinal = 'Buen avance. Revise los conceptos donde falló.';
+            else mensajeFinal = 'Necesita reforzar. Repita la actividad de repaso.';
+            pdf.text(mensajeFinal, 105, yPos + 24, { align: 'center' });
+            
+            pdf.setFillColor(119, 150, 16);
+            pdf.rect(0, 280, 210, 17, 'F');
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(9);
+            pdf.text('Curso PAMI - Módulo 2: Marco Legal', 105, 290, { align: 'center' });
+            
+            pdf.save(`Repaso_Modulo2_Resultados_${Date.now()}.pdf`);
+        }
+
+        function restartActivity() {
+            currentCard = 0;
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            goToScreen(0);
+        }
+
+        updateProgress();
+        updateNavButtons();
+    </script>
+</body>
+</html>
