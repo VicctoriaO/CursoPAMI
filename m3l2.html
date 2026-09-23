@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lección 2: Metodología de planificación: del problema a los objetivos</title>
+<style>
+  :root {
+    --primary: #8a0976;
+    --primary-light: #f3e6f1;
+    --secondary: #393939;
+    --bg: #faf7fa;
+    --white: #ffffff;
+    --success: #2e7d32;
+    --error: #c62828;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+  
+  body {
+    background: var(--bg);
+    color: var(--secondary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .main-container {
+    flex: 1;
+    position: relative;
+    overflow-y: auto;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.5s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Full width images with 21:9 aspect ratio and rounded top corners */
+  .cover-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 21/9;
+    object-fit: cover;
+    display: block;
+    border-radius: 15px 15px 0 0;
+    margin: 0 auto;
+  }
+
+  .content-wrapper {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  h1 { 
+    color: var(--primary); 
+    font-size: 26px; 
+    margin: 20px 0 15px 0; 
+    text-align: center;
+    font-weight: 700;
+  }
+  
+  h2 { 
+    color: var(--primary); 
+    font-size: 22px; 
+    margin: 20px 0 15px 0; 
+    font-weight: 700;
+  }
+  
+  h3 { 
+    color: var(--primary); 
+    font-size: 17px; 
+    margin: 15px 0 10px 0; 
+    font-weight: 600;
+  }
+  
+  p { 
+    font-size: 15px; 
+    line-height: 1.6; 
+    margin-bottom: 12px; 
+  }
+
+  /* Main purpose text - outside box, larger */
+  .main-purpose {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--secondary);
+    margin: 20px;
+    padding: 0 10px;
+    line-height: 1.6;
+  }
+
+  /* Big question button */
+  .big-question {
+    background: linear-gradient(135deg, var(--primary) 0%, #a61c8a 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(138,9,118,0.3);
+  }
+  .big-question:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(138,9,118,0.4);
+  }
+  .big-question::before {
+    content: '❓ ';
+    font-size: 20px;
+  }
+
+  .hidden-answer {
+    display: none;
+    background: var(--primary-light);
+    border-left: 5px solid var(--primary);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 0 20px 20px 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .hidden-answer.show {
+    display: block;
+    animation: fadeIn 0.4s;
+  }
+
+  /* Flip cards */
+  .flip-card {
+    background-color: transparent;
+    width: 100%;
+    height: 220px;
+    perspective: 1000px;
+    cursor: pointer;
+    margin: 10px 0;
+  }
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+  .flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 3px solid var(--primary);
+  }
+  .flip-card-front {
+    background: var(--white);
+    color: var(--primary);
+  }
+  .flip-card-front .icon {
+    font-size: 56px;
+    margin-bottom: 10px;
+  }
+  .flip-card-front .title {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .flip-card-front .question {
+    font-size: 14px;
+    font-style: italic;
+    margin-top: 8px;
+    color: var(--secondary);
+  }
+  .flip-card-back {
+    background: var(--primary);
+    color: white;
+    transform: rotateY(180deg);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-y: auto;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+    margin: 20px;
+  }
+
+  /* Conversion table as cards */
+  .conversion-item {
+    background: var(--white);
+    border: 2px solid var(--primary-light);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 20px;
+  }
+  .conversion-item h4 {
+    color: var(--primary);
+    font-size: 15px;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .conversion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .conversion-box {
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .conversion-problem {
+    background: #ffebee;
+    border-left: 4px solid var(--error);
+  }
+  .conversion-objective {
+    background: #e8f5e9;
+    border-left: 4px solid var(--success);
+  }
+  .conversion-level {
+    background: var(--primary-light);
+    border-left: 4px solid var(--primary);
+    font-weight: 600;
+  }
+
+  /* Highlight boxes */
+  .highlight-box {
+    background: var(--primary-light);
+    border-left: 5px solid var(--primary);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .highlight-box strong {
+    color: var(--primary);
+  }
+
+  .note-box {
+    background: #fff3cd;
+    border: 2px solid #ffeaa7;
+    border-left: 5px solid #f57c00;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin: 15px 20px;
+    line-height: 1.5;
+  }
+
+  /* Infographic screen */
+  .infographic-container {
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+  }
+  .infographic-title {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .infographic-subtitle {
+    color: var(--secondary);
+    font-size: 16px;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  .infographic-image {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Video */
+  .video-container {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 2px solid var(--primary-light);
+  }
+  .video-instructions {
+    background: var(--primary-light);
+    border-left: 5px solid var(--primary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Quiz */
+  .quiz-container {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 25px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 2px solid var(--primary-light);
+  }
+  .quiz-question {
+    display: none;
+  }
+  .quiz-question.active {
+    display: block;
+    animation: fadeIn 0.4s;
+  }
+  .quiz-question h3 {
+    font-size: 17px;
+    margin-bottom: 18px;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .quiz-opt {
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.3s;
+    background: var(--white);
+    text-align: left;
+  }
+  .quiz-opt:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+  }
+  .quiz-opt.correct {
+    background: #d4edda;
+    border-color: var(--success);
+    color: var(--success);
+    font-weight: bold;
+  }
+  .quiz-opt.incorrect {
+    background: #f8d7da;
+    border-color: var(--error);
+    color: var(--error);
+  }
+  .quiz-feedback {
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: none;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .quiz-feedback.show {
+    display: block;
+    animation: fadeIn 0.3s;
+  }
+  .quiz-feedback.correct {
+    background: #d4edda;
+    color: var(--success);
+    border-left: 4px solid var(--success);
+  }
+  .quiz-feedback.incorrect {
+    background: #f8d7da;
+    color: var(--error);
+    border-left: 4px solid var(--error);
+  }
+  .quiz-next {
+    margin-top: 18px;
+    padding: 12px 25px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+    display: none;
+    transition: all 0.3s;
+  }
+  .quiz-next.show {
+    display: inline-block;
+  }
+  .quiz-next:hover {
+    background: #6d075d;
+    transform: translateY(-2px);
+  }
+  .quiz-result {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+  }
+  .quiz-result.show {
+    display: block;
+    animation: fadeIn 0.5s;
+  }
+  .quiz-result h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+  .quiz-result.excellent {
+    color: var(--success);
+  }
+  .quiz-result.good {
+    color: #f57c00;
+  }
+  .quiz-result.review {
+    color: var(--error);
+  }
+  .quiz-result p {
+    font-size: 16px;
+    margin: 10px 0;
+  }
+
+  /* Progress bar at bottom */
+  .progress-bar {
+    background: var(--white);
+    border-top: 3px solid var(--primary);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -2px 10px rgba(138,9,118,0.1);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+  .progress-steps {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+  .step {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #777;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: not-allowed;
+    transition: all 0.3s;
+  }
+  .step.active { 
+    background: var(--primary); 
+    color: white; 
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(138,9,118,0.3);
+  }
+  .step.completed { 
+    background: #d896d0; 
+    color: white; 
+    cursor: pointer; 
+  }
+  .step.completed:hover { 
+    background: var(--primary); 
+  }
+
+  .btn-nav {
+    padding: 12px 28px;
+    border-radius: 25px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.3s;
+  }
+  .btn-prev { 
+    background: #e0e0e0; 
+    color: var(--secondary); 
+  }
+  .btn-prev:hover { 
+    background: #d0d0d0; 
+  }
+  .btn-next { 
+    background: var(--primary); 
+    color: white; 
+  }
+  .btn-next:hover { 
+    background: #6d075d;
+    transform: translateY(-2px);
+  }
+  .btn-next:disabled { 
+    background: #ccc; 
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 768px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .flip-card { height: 200px; }
+    .conversion-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 20px; }
+    .main-purpose { font-size: 16px; }
+    .big-question { font-size: 15px; padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="main-container">
+
+  <!-- PANTALLA 1: INTRO -->
+  <div class="screen active" id="screen-1">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img5.png" class="cover-image" alt="Módulo 3 - Lección 2">
+    
+    <div class="content-wrapper">
+      <h1>Lección 2: Metodología de planificación: del problema a los objetivos</h1>
+      
+      <div class="main-purpose">
+        El propósito de esta lección es comprender la relación entre diagnóstico y planificación, con especial atención a la identificación de problemas, causas y efectos.
+      </div>
+
+      <button class="big-question" onclick="toggleAnswer('opening-answer')">
+        Cuando observamos una situación que afecta a la niñez, ¿estamos identificando el problema central, una de sus causas o una de sus consecuencias?
+      </button>
+      <div id="opening-answer" class="hidden-answer">
+        Es fundamental distinguir entre estos tres elementos. Lo que observamos superficialmente suele ser un efecto o consecuencia. El problema central es la situación que afecta el ejercicio de derechos, y las causas son los factores que lo producen. Esta distinción es clave para diseñar soluciones efectivas.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2: BLOQUE 1 - TÉCNICA DE ESCENARIOS -->
+  <div class="screen" id="screen-2">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img6.png" class="cover-image" alt="Técnica de Escenarios">
+    
+    <div class="content-wrapper">
+      <h2>Bloque 1. La técnica de los escenarios</h2>
+      
+      <p>Planificar implica relacionar la realidad actual con el futuro que se desea construir. La técnica de los escenarios presenta tres componentes que funcionan como una ruta de viaje:</p>
+      
+      <h3 style="margin-top: 20px;">Los tres componentes (haz clic para voltear):</h3>
+      
+      <div class="card-grid">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">📍</div>
+              <div class="title">Escenario de Salida</div>
+              <div class="question">¿Dónde estamos?</div>
+            </div>
+            <div class="flip-card-back">
+              <strong>El diagnóstico de la situación actual</strong><br><br>
+              Incluye los indicadores iniciales o línea de base. No se limita a contar cuántas niñas, niños o adolescentes viven en el municipio, sino que busca conocer quiénes acceden efectivamente a sus derechos, quiénes encuentran barreras y cuáles son las condiciones que explican esas diferencias.
+            </div>
+          </div>
+        </div>
+        
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">🌉</div>
+              <div class="title">Puente Estratégico</div>
+              <div class="question">¿Cómo llegaremos?</div>
+            </div>
+            <div class="flip-card-back">
+              <strong>Estrategias, acciones y recursos</strong><br><br>
+              Conecta el conocimiento con la acción. Para construirlo se responde:<br>
+              • ¿Qué hacer?<br>
+              • ¿Cómo hacerlo?<br>
+              • ¿Dónde y cuándo?<br>
+              • ¿Quién y con quién?<br>
+              • ¿Con qué recursos?
+            </div>
+          </div>
+        </div>
+        
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">🎯</div>
+              <div class="title">Escenario de Llegada</div>
+              <div class="question">¿Qué realidad queremos alcanzar?</div>
+            </div>
+            <div class="flip-card-back">
+              <strong>La visión de futuro</strong><br><br>
+              Expresa el horizonte que orientará las decisiones y los cambios esperados en el ejercicio de los derechos. Representa el sueño a mediano o largo plazo donde el Estado garantiza plenamente los derechos de la niñez y adolescencia.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>💡 Idea para destacar:</strong> Una visión de futuro necesita un puente concreto. Sin responsables, coordinación, recursos y tiempos, la intención de transformar la realidad no se convierte en una respuesta organizada.
+      </div>
+
+      <div class="note-box">
+        <strong>📌 Distinción importante:</strong> El dibujo salida → puente → llegada representa la conexión entre componentes. Sin embargo, para tomar decisiones la secuencia lógica es: conocer la salida, definir la llegada y construir después el puente.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3: BLOQUE 2 - ÁRBOL DE PROBLEMAS (FLIP CARDS) -->
+  <div class="screen" id="screen-3">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img7.png" class="cover-image" alt="Árbol de Problemas">
+    
+    <div class="content-wrapper">
+      <h2>Bloque 2. El árbol de problemas: encontrar las raíces</h2>
+      
+      <p>El árbol de problemas permite analizar una situación sin confundirla con todo lo que ocurre a su alrededor. Esta herramienta ayuda a pasar de una preocupación general a una explicación organizada.</p>
+      
+      <h3 style="margin-top: 20px;">Partes del árbol (haz clic para voltear):</h3>
+      
+      <div class="card-grid">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="background: #228B22; color: white; border-color: #228B22;">
+              <div class="icon">🌿</div>
+              <div class="title">Ramas y Hojas: EFECTOS</div>
+            </div>
+            <div class="flip-card-back" style="background: #228B22;">
+              <strong>Consecuencias o efectos</strong><br><br>
+              Es lo que vemos a simple vista en la comunidad.<br><br>
+              <em>Ejemplo:</em><br>
+              • Aumento del trabajo informal<br>
+              • Migración irregular de adolescentes<br>
+              • Perpetuación del ciclo de pobreza
+            </div>
+          </div>
+        </div>
+        
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="background: var(--primary); color: white; border-color: var(--primary);">
+              <div class="icon">🪵</div>
+              <div class="title">Tronco: PROBLEMA CENTRAL</div>
+            </div>
+            <div class="flip-card-back">
+              <strong>La situación que afecta el cumplimiento de derechos</strong><br><br>
+              <em>Ejemplo:</em><br>
+              Alta tasa de deserción escolar en adolescentes de 13 a 15 años del municipio.
+            </div>
+          </div>
+        </div>
+        
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="background: #8B4513; color: white; border-color: #8B4513;">
+              <div class="icon">🌱</div>
+              <div class="title">Raíces: CAUSAS</div>
+            </div>
+            <div class="flip-card-back" style="background: #8B4513;">
+              <strong>Factores que producen el problema</strong><br><br>
+              Si no las cortamos, el problema vuelve a crecer.<br><br>
+              <em>Ejemplo:</em><br>
+              • Poca oferta de institutos públicos en áreas rurales<br>
+              • Situación económica familiar precaria<br>
+              • Falta de transporte seguro
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>🔍 Preguntas para construir el árbol:</strong><br><br>
+        <strong>Para identificar el problema:</strong> ¿qué situación afecta el ejercicio de un derecho?, ¿a qué población se refiere?, ¿en qué territorio ocurre?<br><br>
+        <strong>Para reconocer causas:</strong> ¿por qué sucede?, ¿qué condiciones contribuyen a que se mantenga?<br><br>
+        <strong>Para reconocer efectos:</strong> ¿qué consecuencias produce?, ¿qué puede ocurrir si persiste?
+      </div>
+
+      <div class="note-box">
+        <strong>⚠️ Importante:</strong> Este ejemplo muestra una posible organización del análisis, no una explicación comprobada de todos los casos de deserción escolar. En una investigación real, las relaciones deben contrastarse con la información y las experiencias del territorio.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 4: INFOGRAFÍA DEL ÁRBOL DE PROBLEMAS -->
+  <div class="screen" id="screen-4">
+    <div class="infographic-container">
+      <h2 class="infographic-title">El árbol de problemas</h2>
+      <p class="infographic-subtitle">Observe y lea atentamente la infografía para comprender la estructura y los ejemplos del árbol de problemas</p>
+      <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/c0fe5bd29e4c8ebe5927128035e47b6ae7108f3e/M3Arecursos/m3adp.png" class="infographic-image" alt="Infografía del Árbol de Problemas">
+    </div>
+  </div>
+
+  <!-- PANTALLA 5: BLOQUE 3 - ÁRBOL DE OBJETIVOS -->
+  <div class="screen" id="screen-5">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img8.png" class="cover-image" alt="Árbol de Objetivos">
+    
+    <div class="content-wrapper">
+      <h2>Bloque 3. El árbol de objetivos: comprender el cambio esperado</h2>
+      
+      <p>Una vez organizado el árbol de problemas, es posible transformar sus enunciados en situaciones positivas. La transformación conserva la relación entre sus niveles:</p>
+      
+      <div class="highlight-box" style="text-align: center; font-size: 16px;">
+        <strong>Causas → Medios</strong><br>
+        <strong>Problema central → Propósito</strong><br>
+        <strong>Efectos → Fines</strong>
+      </div>
+
+      <h3 style="margin-top: 20px;">Conversión del ejemplo educativo:</h3>
+
+      <div class="conversion-item">
+        <h4>Nivel: Medios (Objetivos específicos)</h4>
+        <div class="conversion-grid">
+          <div class="conversion-box conversion-problem">
+            <strong>Problema (Causa):</strong><br>
+            Poca oferta de institutos públicos en áreas rurales
+          </div>
+          <div class="conversion-box conversion-objective">
+            <strong>Objetivo (Medio):</strong><br>
+            Ampliar la oferta de institutos públicos en áreas rurales
+          </div>
+        </div>
+      </div>
+
+      <div class="conversion-item">
+        <div class="conversion-grid">
+          <div class="conversion-box conversion-problem">
+            <strong>Problema (Causa):</strong><br>
+            Situación económica familiar que obliga a adolescentes a trabajar
+          </div>
+          <div class="conversion-box conversion-objective">
+            <strong>Objetivo (Medio):</strong><br>
+            Mejorar las condiciones de apoyo económico familiar para favorecer la permanencia escolar
+          </div>
+        </div>
+      </div>
+
+      <div class="conversion-item">
+        <div class="conversion-grid">
+          <div class="conversion-box conversion-problem">
+            <strong>Problema (Causa):</strong><br>
+            Falta de transporte seguro
+          </div>
+          <div class="conversion-box conversion-objective">
+            <strong>Objetivo (Medio):</strong><br>
+            Garantizar transporte escolar seguro
+          </div>
+        </div>
+      </div>
+
+      <div class="conversion-item">
+        <h4>Nivel: Propósito (Objetivo general)</h4>
+        <div class="conversion-grid">
+          <div class="conversion-box conversion-problem">
+            <strong>Problema Central:</strong><br>
+            Alta tasa de deserción escolar en adolescentes de 13 a 15 años
+          </div>
+          <div class="conversion-box conversion-objective">
+            <strong>Propósito:</strong><br>
+            Reducir la deserción escolar en adolescentes de 13 a 15 años
+          </div>
+        </div>
+      </div>
+
+      <div class="conversion-item">
+        <h4>Nivel: Fines (Impacto a largo plazo)</h4>
+        <div class="conversion-grid">
+          <div class="conversion-box conversion-problem">
+            <strong>Efectos:</strong><br>
+            • Aumento del trabajo informal<br>
+            • Migración irregular<br>
+            • Perpetuación del ciclo de pobreza
+          </div>
+          <div class="conversion-box conversion-objective">
+            <strong>Fines:</strong><br>
+            • Contribuir a reducir el trabajo informal<br>
+            • Contribuir a disminuir la migración irregular<br>
+            • Contribuir a romper el ciclo de pobreza
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>💡 Idea para destacar:</strong> Transformar un árbol no consiste solamente en cambiar palabras negativas por positivas. También es necesario conservar la relación entre los medios, el propósito y los fines.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 6: BLOQUE 4 - DEL ÁRBOL A LA ACCIÓN -->
+  <div class="screen" id="screen-6">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/c0fe5bd29e4c8ebe5927128035e47b6ae7108f3e/M3Arecursos/m3img1.png" class="cover-image" alt="Del árbol a la acción">
+    <div class="content-wrapper">
+      <h2>Bloque 4. Del árbol a la acción política</h2>
+      
+      <p>El árbol de objetivos ofrece una base para formular respuestas, pero todavía es necesario concretar cómo se llevarán a cabo. La planificación debe precisar:</p>
+      
+      <div class="card-grid" style="margin-top: 20px;">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">💰</div>
+              <div class="title">Recursos</div>
+              <div class="question">¿Qué recursos del presupuesto municipal se usarán?</div>
+            </div>
+            <div class="flip-card-back">
+              Definir las partidas presupuestarias específicas, el talento humano necesario y los recursos materiales requeridos para cada acción.
+            </div>
+          </div>
+        </div>
+        
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">🤝</div>
+              <div class="title">Alianzas</div>
+              <div class="question">¿Qué organizaciones de sociedad civil apoyarán?</div>
+            </div>
+            <div class="flip-card-back">
+              Identificar las organizaciones, instituciones y actores clave que participarán en las capacitaciones, ejecución y seguimiento de las acciones.
+            </div>
+          </div>
+        </div>
+        
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">📅</div>
+              <div class="title">Tiempo</div>
+              <div class="question">¿En qué meses del año se ejecutarán las acciones?</div>
+            </div>
+            <div class="flip-card-back">
+              Establecer un cronograma claro con fechas de inicio y fin, hitos intermedios y momentos de evaluación para cada actividad planificada.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box" style="margin-top: 25px;">
+        <strong>🎯 Ejemplo práctico:</strong> "Garantizar transporte escolar seguro" requiere definir las comunidades que se atenderán, las responsabilidades, los recursos y la organización del servicio. El objetivo expresa el cambio; el puente estratégico explica cómo se buscará alcanzarlo.
+      </div>
+
+      <div class="note-box">
+        <strong>📋 El alcance de este módulo:</strong> En esta etapa del curso no se pretende elaborar toda la política pública. El propósito es fortalecer el diagnóstico que servirá como base para las decisiones posteriores.
+      </div>
+
+      <h3 style="margin-top: 25px;">Diferenciación clave:</h3>
+      
+      <div class="conversion-item">
+        <div class="conversion-grid">
+          <div class="conversion-box conversion-problem">
+            <strong>Objetivo de Investigación (Diagnóstico):</strong><br>
+            Analizar las barreras para la permanencia escolar<br><br>
+            <em style="font-size: 13px;">Orienta el diagnóstico - busca conocer</em>
+          </div>
+          <div class="conversion-box conversion-objective">
+            <strong>Objetivo de Intervención (Política):</strong><br>
+            Reducir la deserción escolar<br><br>
+            <em style="font-size: 13px;">Expresa un cambio - busca transformar</em>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box" style="margin-top: 25px; text-align: center; font-size: 16px;">
+        <strong>🎓 Cierre de la lección:</strong><br><br>
+        Un buen diagnóstico no se limita a describir lo visible. Busca comprender las relaciones que sostienen un problema para evitar respuestas que atiendan solamente sus consecuencias.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 7: BLOQUE 5 - VIDEO -->
+  <div class="screen" id="screen-7">
+    <div class="content-wrapper">
+      <h2>Bloque 5. Video: Metodología de planificación</h2>
+      
+      <div class="video-container">
+        <div class="video-instructions">
+          <strong>Instrucciones:</strong> Observe atentamente el video sobre la metodología de planificación. Preste especial atención a cómo se construye el árbol de problemas y el árbol de objetivos, y cómo estos se conectan con la acción política. Al finalizar, reflexione sobre cómo aplicaría esta metodología en su municipio.
+        </div>
+        <div class="video-wrapper">
+          <iframe src="https://drive.google.com/file/d/1giK44t_D38xQ6thYGw3Giyx4dwsfMcG7/preview" allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <button class="big-question" onclick="toggleAnswer('video-reflection')">
+        💭 Reflexión post-video: ¿Qué aspecto de la metodología de planificación le pareció más relevante para su trabajo y por qué?
+      </button>
+      <div id="video-reflection" class="hidden-answer">
+        La metodología de planificación con enfoque de derechos permite transformar problemas complejos en soluciones organizadas y viables. El árbol de problemas y objetivos son herramientas poderosas que ayudan a visualizar las relaciones causa-efecto y a diseñar intervenciones que aborden las raíces del problema, no solo sus síntomas.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 8: EVALUACIÓN -->
+  <div class="screen" id="screen-8">
+    <div class="content-wrapper">
+      <h2>📝 Verifica tu aprendizaje</h2>
+      <p style="text-align:center; margin-bottom:20px; font-size:15px;">Responde las preguntas. Aparecerán de una en una.</p>
+
+      <div class="quiz-container">
+        <!-- Pregunta 1 -->
+        <div class="quiz-question active" data-q="1">
+          <h3>1. En la técnica de los escenarios, ¿qué componente responde a la pregunta "¿Cómo llegaremos?"?</h3>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkAnswer(1, this, false)">Escenario de salida</div>
+            <div class="quiz-opt" onclick="checkAnswer(1, this, true)">Puente estratégico o metodológico</div>
+            <div class="quiz-opt" onclick="checkAnswer(1, this, false)">Escenario de llegada</div>
+          </div>
+          <div class="quiz-feedback" id="feedback-1"></div>
+          <button class="quiz-next" id="next-1" onclick="nextQuestion()">Siguiente pregunta →</button>
+        </div>
+
+        <!-- Pregunta 2 -->
+        <div class="quiz-question" data-q="2">
+          <h3>2. En el árbol de problemas, las raíces representan:</h3>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkAnswer(2, this, false)">Los efectos o consecuencias</div>
+            <div class="quiz-opt" onclick="checkAnswer(2, this, false)">El problema central</div>
+            <div class="quiz-opt" onclick="checkAnswer(2, this, true)">Las causas que producen el problema</div>
+          </div>
+          <div class="quiz-feedback" id="feedback-2"></div>
+          <button class="quiz-next" id="next-2" onclick="nextQuestion()">Siguiente pregunta →</button>
+        </div>
+
+        <!-- Pregunta 3 -->
+        <div class="quiz-question" data-q="3">
+          <h3>3. Al transformar el árbol de problemas en árbol de objetivos, ¿en qué se convierten las causas?</h3>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkAnswer(3, this, true)">Medios (objetivos específicos)</div>
+            <div class="quiz-opt" onclick="checkAnswer(3, this, false)">Fines (impacto)</div>
+            <div class="quiz-opt" onclick="checkAnswer(3, this, false)">Propósito (objetivo general)</div>
+          </div>
+          <div class="quiz-feedback" id="feedback-3"></div>
+          <button class="quiz-next" id="next-3" onclick="showResults()">Ver resultados</button>
+        </div>
+
+        <!-- Pregunta 4 -->
+        <div class="quiz-question" data-q="4">
+          <h3>4. ¿Cuál es la diferencia entre un objetivo de investigación y un objetivo de intervención?</h3>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkAnswer(4, this, false)">No hay diferencia, son lo mismo</div>
+            <div class="quiz-opt" onclick="checkAnswer(4, this, true)">El de investigación busca conocer; el de intervención busca transformar</div>
+            <div class="quiz-opt" onclick="checkAnswer(4, this, false)">El de investigación es más importante que el de intervención</div>
+          </div>
+          <div class="quiz-feedback" id="feedback-4"></div>
+          <button class="quiz-next" id="next-4" onclick="showResults()">Ver resultados</button>
+        </div>
+
+        <!-- Resultados -->
+        <div class="quiz-result" id="quiz-result">
+          <h2 id="result-title"></h2>
+          <p id="result-message"></p>
+          <p id="result-score" style="font-size:20px; font-weight:bold; margin-top:15px;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BARRA DE PROGRESO (ABAJO) -->
+<div class="progress-bar">
+  <button class="btn-nav btn-prev" id="btn-prev" onclick="changeStep(-1)">← Anterior</button>
+  <div class="progress-steps">
+    <div class="step active" data-step="1" onclick="goToStep(1)">1</div>
+    <div class="step" data-step="2" onclick="goToStep(2)">2</div>
+    <div class="step" data-step="3" onclick="goToStep(3)">3</div>
+    <div class="step" data-step="4" onclick="goToStep(4)">4</div>
+    <div class="step" data-step="5" onclick="goToStep(5)">5</div>
+    <div class="step" data-step="6" onclick="goToStep(6)">6</div>
+    <div class="step" data-step="7" onclick="goToStep(7)">7</div>
+    <div class="step" data-step="8" onclick="goToStep(8)">8</div>
+  </div>
+  <button class="btn-nav btn-next" id="btn-next" onclick="changeStep(1)">Siguiente →</button>
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 8;
+  let quizScore = 0;
+  let answeredQuestions = 0;
+
+  function changeStep(direction) {
+    if (currentStep + direction >= 1 && currentStep + direction <= totalSteps) {
+      currentStep += direction;
+      goToStep(currentStep);
+    }
+  }
+
+  function goToStep(step) {
+    if (step > currentStep && step <= totalSteps) {
+      for (let i = currentStep; i < step; i++) {
+        document.querySelector(`.step[data-step="${i}"]`).classList.add('completed');
+      }
+    }
+    currentStep = step;
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`screen-${currentStep}`).classList.add('active');
+    
+    document.querySelectorAll('.step').forEach(s => {
+      s.classList.remove('active');
+      if (parseInt(s.dataset.step) === currentStep) s.classList.add('active');
+    });
+    
+    updateNav();
+    window.scrollTo(0, 0);
+  }
+
+  function updateNav() {
+    document.getElementById('btn-prev').disabled = currentStep === 1;
+    const nextBtn = document.getElementById('btn-next');
+    if (currentStep === totalSteps) {
+      nextBtn.textContent = 'Finalizar lección ✓';
+      nextBtn.onclick = () => alert('¡Has completado la Lección 2!');
+    } else {
+      nextBtn.textContent = 'Siguiente →';
+      nextBtn.onclick = () => changeStep(1);
+      nextBtn.disabled = false;
+    }
+  }
+
+  function toggleAnswer(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('show');
+  }
+
+  // Quiz functions
+  function checkAnswer(qNum, element, isCorrect) {
+    const question = document.querySelector(`.quiz-question[data-q="${qNum}"]`);
+    const feedback = document.getElementById(`feedback-${qNum}`);
+    const nextBtn = document.getElementById(`next-${qNum}`);
+    
+    // Disable all options
+    question.querySelectorAll('.quiz-opt').forEach(opt => {
+      opt.style.pointerEvents = 'none';
+      if (opt === element) {
+        opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+      }
+    });
+    
+    // Show feedback
+    feedback.classList.add('show');
+    if (isCorrect) {
+      feedback.classList.add('correct');
+      feedback.innerHTML = '✅ <strong>¡Correcto!</strong> Has identificado el concepto clave.';
+      quizScore++;
+    } else {
+      feedback.classList.add('incorrect');
+      feedback.innerHTML = '❌ <strong>Incorrecto.</strong> Te recomendamos revisar el bloque correspondiente.';
+    }
+    
+    answeredQuestions++;
+    nextBtn.classList.add('show');
+  }
+
+  function nextQuestion() {
+    const currentQ = document.querySelector(`.quiz-question[data-q="${answeredQuestions}"]`);
+    currentQ.classList.remove('active');
+    const nextQ = document.querySelector(`.quiz-question[data-q="${answeredQuestions + 1}"]`);
+    if (nextQ) {
+      nextQ.classList.add('active');
+    }
+  }
+
+  function showResults() {
+    document.querySelectorAll('.quiz-question').forEach(q => q.classList.remove('active'));
+    const resultDiv = document.getElementById('quiz-result');
+    const title = document.getElementById('result-title');
+    const message = document.getElementById('result-message');
+    const score = document.getElementById('result-score');
+    
+    resultDiv.classList.add('show');
+    score.textContent = `Tu puntuación: ${quizScore} de 4`;
+    
+    if (quizScore === 4) {
+      title.textContent = '🌟 ¡Excelente!';
+      resultDiv.className = 'quiz-result show excellent';
+      message.textContent = 'Has dominado todos los conceptos de esta lección. ¡Estás listo para continuar!';
+    } else if (quizScore === 3) {
+      title.textContent = '👍 ¡Buen trabajo!';
+      resultDiv.className = 'quiz-result show good';
+      message.textContent = 'Has comprendido la mayoría de los conceptos. Te sugerimos repasar el bloque donde tuviste dificultad.';
+    } else {
+      title.textContent = '📚 Necesitas repasar';
+      resultDiv.className = 'quiz-result show review';
+      message.textContent = 'Te recomendamos volver a revisar todos los bloques de la lección antes de continuar.';
+    }
+  }
+
+  // Initialize
+  window.onload = function() {
+    updateNav();
+  };
+</script>
+</body>
+</html>
