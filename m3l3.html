@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lección 3: Diseño y ruta del diagnóstico participativo</title>
+<style>
+  :root {
+    --primary: #8a0976;
+    --primary-light: #f3e6f1;
+    --secondary: #393939;
+    --bg: #faf7fa;
+    --white: #ffffff;
+    --success: #2e7d32;
+    --error: #c62828;
+    --warning: #f57c00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+  
+  body {
+    background: var(--bg);
+    color: var(--secondary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .main-container {
+    flex: 1;
+    position: relative;
+    overflow-y: auto;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    animation: fadeIn 0.5s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+  .cover-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 21/9;
+    object-fit: cover;
+    display: block;
+    border-radius: 15px 15px 0 0;
+    margin: 0 auto;
+  }
+
+  .content-wrapper {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  h1 { color: var(--primary); font-size: 26px; margin: 20px 0 15px 0; text-align: center; font-weight: 700; }
+  h2 { color: var(--primary); font-size: 22px; margin: 20px 0 15px 0; font-weight: 700; }
+  h3 { color: var(--primary); font-size: 17px; margin: 15px 0 10px 0; font-weight: 600; }
+  p { font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
+
+  .main-purpose {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--secondary);
+    margin: 20px;
+    padding: 0 10px;
+    line-height: 1.6;
+  }
+
+  .big-question {
+    background: linear-gradient(135deg, var(--primary) 0%, #a61c8a 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(138,9,118,0.3);
+  }
+  .big-question:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(138,9,118,0.4); }
+  .big-question::before { content: '❓ '; font-size: 20px; }
+
+  .hidden-answer {
+    display: none;
+    background: var(--primary-light);
+    border-left: 5px solid var(--primary);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 0 20px 20px 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .hidden-answer.show { display: block; animation: fadeIn 0.4s; }
+
+  .flip-card {
+    background-color: transparent;
+    width: 100%;
+    height: 200px;
+    perspective: 1000px;
+    cursor: pointer;
+    margin: 10px 0;
+  }
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+  .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 3px solid var(--primary);
+  }
+  .flip-card-front { background: var(--white); color: var(--primary); }
+  .flip-card-front .icon { font-size: 48px; margin-bottom: 10px; }
+  .flip-card-front .title { font-size: 16px; font-weight: 700; }
+  .flip-card-back { background: var(--primary); color: white; transform: rotateY(180deg); font-size: 14px; line-height: 1.5; overflow-y: auto; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin: 20px;
+  }
+
+  .accordion-item {
+    background: var(--white);
+    border: 2px solid var(--primary-light);
+    border-radius: 10px;
+    margin: 10px 20px;
+    overflow: hidden;
+  }
+  .accordion-header {
+    padding: 15px;
+    font-weight: 700;
+    color: var(--primary);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--white);
+    transition: background 0.3s;
+  }
+  .accordion-header:hover { background: var(--primary-light); }
+  .accordion-header::after { content: '+'; font-size: 24px; font-weight: bold; }
+  .accordion-item.active .accordion-header::after { content: '−'; }
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    padding: 0 15px;
+    background: var(--bg);
+  }
+  .accordion-item.active .accordion-content {
+    max-height: 500px;
+    padding: 15px;
+    border-top: 2px solid var(--primary-light);
+  }
+
+  .highlight-box {
+    background: var(--primary-light);
+    border-left: 5px solid var(--primary);
+    border-radius: 8px;
+    padding: 18px;
+    margin: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .highlight-box strong { color: var(--primary); }
+
+  .note-box {
+    background: #fff3cd;
+    border: 2px solid #ffeaa7;
+    border-left: 5px solid #f57c00;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin: 15px 20px;
+    line-height: 1.5;
+  }
+
+  .interactive-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 2px solid var(--primary-light);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    margin: 10px 0;
+    transition: border-color 0.3s;
+  }
+  .interactive-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .video-container {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 2px solid var(--primary-light);
+  }
+  .video-instructions {
+    background: var(--primary-light);
+    border-left: 5px solid var(--primary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .infographic-container {
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+  }
+  .infographic-title {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .infographic-subtitle {
+    color: var(--secondary);
+    font-size: 16px;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  .infographic-image {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Matching Game Styles */
+  .matching-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px;
+  }
+  .match-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .match-item {
+    padding: 15px;
+    background: var(--white);
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center;
+    transition: all 0.3s;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .match-item:hover { border-color: var(--primary); background: var(--primary-light); }
+  .match-item.selected { border-color: var(--primary); background: var(--primary); color: white; transform: scale(1.02); }
+  .match-item.matched { border-color: var(--success); background: #d4edda; color: var(--success); cursor: default; pointer-events: none; }
+  .match-item.wrong { animation: shake 0.4s; border-color: var(--error); background: #f8d7da; color: var(--error); }
+
+  .quiz-result {
+    text-align: center;
+    padding: 30px 20px;
+    display: none;
+    margin: 20px;
+    border-radius: 10px;
+    border: 3px solid;
+  }
+  .quiz-result.show { display: block; animation: fadeIn 0.5s; }
+  .quiz-result.excellent { border-color: var(--success); background: #d4edda; color: var(--success); }
+  .quiz-result.review { border-color: var(--error); background: #f8d7da; color: var(--error); }
+  .quiz-result h2 { font-size: 28px; margin-bottom: 15px; }
+  .quiz-result p { font-size: 16px; }
+
+  .progress-bar {
+    background: var(--white);
+    border-top: 3px solid var(--primary);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -2px 10px rgba(138,9,118,0.1);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+  .progress-steps {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+  .step {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #777;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: not-allowed;
+    transition: all 0.3s;
+  }
+  .step.active { background: var(--primary); color: white; transform: scale(1.15); box-shadow: 0 2px 8px rgba(138,9,118,0.3); }
+  .step.completed { background: #d896d0; color: white; cursor: pointer; }
+  .step.completed:hover { background: var(--primary); }
+
+  .btn-nav {
+    padding: 12px 28px;
+    border-radius: 25px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.3s;
+  }
+  .btn-prev { background: #e0e0e0; color: var(--secondary); }
+  .btn-prev:hover { background: #d0d0d0; }
+  .btn-next { background: var(--primary); color: white; }
+  .btn-next:hover { background: #6d075d; transform: translateY(-2px); }
+  .btn-next:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+  @media (max-width: 768px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .matching-container { grid-template-columns: 1fr; }
+    .match-col { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .match-item { width: 48%; min-height: 70px; font-size: 13px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 20px; }
+    .main-purpose { font-size: 16px; }
+    .big-question { font-size: 15px; padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="main-container">
+
+  <!-- PANTALLA 1: INTRO -->
+  <div class="screen active" id="screen-1">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/284c1f907f1f4d5aac5a33793d32db27a55f5b81/M3Arecursos/m3img2.png" class="cover-image" alt="Módulo 3 Diagnóstico Participativo">
+    <div class="content-wrapper">
+      <h1>Lección 3: Diseño y ruta del diagnóstico participativo</h1>
+      <div class="main-purpose">
+        El propósito de esta lección es organizar los elementos y las etapas de un diagnóstico que produzca información pertinente, confiable y construida con participación.
+      </div>
+      <button class="big-question" onclick="toggleAnswer('opening-answer')">
+        ¿Qué decisiones debemos tomar antes de salir al territorio a recoger información?
+      </button>
+      <div id="opening-answer" class="hidden-answer">
+        Debemos definir claramente el objeto de estudio, los objetivos, las herramientas (técnicas e instrumentos), la cobertura geográfica y los actores clave. Además, es vital validar los instrumentos y establecer condiciones éticas de participación para garantizar un proceso respetuoso y útil.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2: BLOQUE 1 -->
+  <div class="screen" id="screen-2">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img3.png" class="cover-image" alt="Diagnóstico Participativo">
+    <div class="content-wrapper">
+      <h2>Bloque 1. ¿Qué hace participativo a un diagnóstico?</h2>
+      <p>Un diagnóstico reconoce y analiza una realidad. Su carácter participativo depende de que distintos actores intervengan en el proceso, generando tres beneficios clave: <strong>apropiación</strong>, <strong>pertinencia</strong> y <strong>diálogo político</strong>.</p>
+      
+      <h3>Seis características del diagnóstico participativo (haz clic para voltear):</h3>
+      <div class="card-grid">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">🤝</div><div class="title">Participativo</div></div>
+            <div class="flip-card-back">Involucrar a distintos actores, especialmente a niñas, niños y adolescentes, valorando sus conocimientos y experiencias.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">🌍</div><div class="title">Inclusivo</div></div>
+            <div class="flip-card-back">Considerar a quienes enfrentan barreras de participación y respetar la diversidad cultural, lingüística, de género y de capacidades.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">⚖️</div><div class="title">Enfoque de derechos</div></div>
+            <div class="flip-card-back">Identificar derechos afectados y responsabilidades para garantizarlos, considerando el interés superior de la niñez.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">📊</div><div class="title">Sistemático y riguroso</div></div>
+            <div class="flip-card-back">Utilizar métodos organizados y combinar información cuantitativa y cualitativa.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">📍</div><div class="title">Territorial</div></div>
+            <div class="flip-card-back">Reconocer diferencias entre comunidades, aldeas y barrios, junto con sus recursos y oportunidades.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">💡</div><div class="title">Reflexivo y transformador</div></div>
+            <div class="flip-card-back">Comprender causas, promover diálogo y producir conocimiento que contribuya a la acción colectiva.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Cinco momentos participativos (haz clic en el + para ampliar):</h3>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">1. Convocatoria</div>
+        <div class="accordion-content">Invitar a actores y organizaciones, especialmente a niñas, niños y adolescentes, asegurando que se sientan bienvenidos y seguros.</div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">2. Exploración</div>
+        <div class="accordion-content">Recoger información mediante herramientas apropiadas y adaptadas a las edades y contextos de los participantes.</div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">3. Análisis conjunto</div>
+        <div class="accordion-content">Interpretar la información e identificar causas, efectos, necesidades y capacidades de manera colaborativa.</div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">4. Priorización</div>
+        <div class="accordion-content">Reconocer colectivamente los problemas y oportunidades que requieren mayor atención y recursos.</div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">5. Síntesis y comunicación</div>
+        <div class="accordion-content">Presentar los hallazgos de forma clara, accesible y en lenguajes comprensibles para toda la comunidad.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3: BLOQUE 2 -->
+  <div class="screen" id="screen-3">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img4.png" class="cover-image" alt="Diseño de la investigación">
+    <div class="content-wrapper">
+      <h2>Bloque 2. El diseño: construir el plano de la investigación</h2>
+      <p>El diseño define qué se investigará y cómo se organizará el trabajo. Es como el plano de una casa: antes de comenzar se necesita claridad sobre el propósito, las herramientas y los recursos.</p>
+      
+      <div class="highlight-box">
+        <strong>💡 Idea para destacar:</strong> El indicador debe ayudar a responder lo que el diagnóstico se propone conocer; no se recoge un dato solamente porque está disponible.
+      </div>
+
+      <h3>De lo general a lo observable (Operacionalización):</h3>
+      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); text-align: center;">
+        <div class="flip-card" style="height: 140px;" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="font-size: 14px; font-weight: bold;">Objeto de estudio</div>
+            <div class="flip-card-back" style="font-size: 12px;">Delimita la realidad que se quiere comprender.</div>
+          </div>
+        </div>
+        <div class="flip-card" style="height: 140px;" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="font-size: 14px; font-weight: bold;">Objetivos</div>
+            <div class="flip-card-back" style="font-size: 12px;">Expresan qué se pretende conocer o evaluar.</div>
+          </div>
+        </div>
+        <div class="flip-card" style="height: 140px;" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="font-size: 14px; font-weight: bold;">Categorías</div>
+            <div class="flip-card-back" style="font-size: 12px;">Grandes pilares temáticos (ej. Educación).</div>
+          </div>
+        </div>
+        <div class="flip-card" style="height: 140px;" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="font-size: 14px; font-weight: bold;">Variables</div>
+            <div class="flip-card-back" style="font-size: 12px;">Dimensiones de una categoría (ej. Cobertura).</div>
+          </div>
+        </div>
+        <div class="flip-card" style="height: 140px;" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front" style="font-size: 14px; font-weight: bold;">Indicadores</div>
+            <div class="flip-card-back" style="font-size: 12px;">Unidad mínima de medida (ej. Tasas de cobertura).</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 25px;">✍️ Mini-actividad de reflexión:</h3>
+      <p>Escribe un posible <strong>indicador cuantitativo</strong> y uno <strong>cualitativo</strong> para el problema de deserción escolar en tu municipio:</p>
+      <textarea class="interactive-textarea" placeholder="Ejemplo: Cuantitativo: Porcentaje de adolescentes que abandonan la escuela. Cualitativo: Percepción de los adolescentes sobre las razones para dejar de estudiar..."></textarea>
+      <p style="font-size: 12px; color: #666; font-style: italic;">Esta reflexión es personal y no se califica.</p>
+    </div>
+  </div>
+
+  <!-- PANTALLA 4: BLOQUE 3 -->
+  <div class="screen" id="screen-4">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img6.png" class="cover-image" alt="Herramientas y cobertura">
+    <div class="content-wrapper">
+      <h2>Bloque 3. Herramientas, participantes y cobertura territorial</h2>
+      <p>La <strong>técnica</strong> es el procedimiento para obtener información. El <strong>instrumento</strong> es el recurso con el que se registra. Haz clic en cada técnica para descubrir su instrumento correspondiente:</p>
+      
+      <div class="card-grid">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">📄</div><div class="title">Revisión documental</div></div>
+            <div class="flip-card-back"><strong>Instrumento:</strong> Ficha de registro o matriz de vaciado.<br><br>Consulta censos, informes y estadísticas existentes.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">📋</div><div class="title">Encuesta</div></div>
+            <div class="flip-card-back"><strong>Instrumento:</strong> Cuestionario de preguntas cerradas.<br><br>Recoge información estructurada de numerosas personas.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">🎤</div><div class="title">Entrevista a profundidad</div></div>
+            <div class="flip-card-back"><strong>Instrumento:</strong> Guía de preguntas abiertas.<br><br>Conoce detalladamente experiencias de actores clave.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">👥</div><div class="title">Grupo focal</div></div>
+            <div class="flip-card-back"><strong>Instrumento:</strong> Guía de moderación y registro.<br><br>Dialogar en grupo sobre un tema específico.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">🎨</div><div class="title">Técnicas participativas</div></div>
+            <div class="flip-card-back"><strong>Instrumento:</strong> Mapas parlantes, siluetas o murales.<br><br>Facilitan la expresión mediante juego o dibujo.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><div class="icon">👁️</div><div class="title">Observación participante</div></div>
+            <div class="flip-card-back"><strong>Instrumento:</strong> Ficha o guía de observación.<br><br>Comprende la realidad cotidiana mediante la observación del contexto.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>⚠️ Ética y Cobertura:</strong> Antes de recoger información, el equipo debe mapear actores, validar instrumentos y garantizar seguridad, voluntariedad y privacidad. La cobertura geográfica debe priorizar la equidad, no solo la facilidad de acceso, incluyendo zonas con mayores barreras o diversidad cultural.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 5: INFOGRAFÍA DE APOYO -->
+  <div class="screen" id="screen-5">
+    <div class="infographic-container">
+      <h2 class="infographic-title">Infografía de apoyo: El árbol de problemas</h2>
+      <p class="infographic-subtitle">Observe y lea atentamente la infografía para comprender la estructura, las causas, el problema central y los efectos en un diagnóstico participativo.</p>
+      <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/c0fe5bd29e4c8ebe5927128035e47b6ae7108f3e/M3Arecursos/m3adp.png" class="infographic-image" alt="Infografía del Árbol de Problemas">
+    </div>
+  </div>
+
+  <!-- PANTALLA 6: BLOQUE 4 -->
+  <div class="screen" id="screen-6">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img8.png" class="cover-image" alt="Ruta de investigación">
+    <div class="content-wrapper">
+      <h2>Bloque 4. La ruta de investigación y el cronograma</h2>
+      <p>El documento base desarrolla seis etapas fundamentales para un diagnóstico riguroso. Haz clic en cada etapa para conocer su trabajo principal y producto:</p>
+      
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">1. Diseño y validación de instrumentos</div>
+        <div class="accordion-content">
+          <strong>Trabajo:</strong> Preparar las herramientas y probar su comprensión y pertinencia mediante una prueba piloto.<br>
+          <strong>Producto:</strong> Instrumentos ajustados y listos para el campo.
+        </div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">2. Revisión bibliográfica y marco conceptual</div>
+        <div class="accordion-content">
+          <strong>Trabajo:</strong> Recuperar censos, informes, estadísticas e investigaciones existentes.<br>
+          <strong>Producto:</strong> Base documental y conceptual sólida.
+        </div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">3. Trabajo de campo</div>
+        <div class="accordion-content">
+          <strong>Trabajo:</strong> Aplicar las herramientas con los participantes y en los territorios seleccionados, garantizando la ética.<br>
+          <strong>Producto:</strong> Registros de información primaria.
+        </div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">4. Ordenamiento y procesamiento</div>
+        <div class="accordion-content">
+          <strong>Trabajo:</strong> Organizar encuestas, notas, dibujos y otros registros mediante matrices u otros formatos.<br>
+          <strong>Producto:</strong> Información organizada y sistematizada para el análisis.
+        </div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">5. Análisis y redacción</div>
+        <div class="accordion-content">
+          <strong>Trabajo:</strong> Interpretar hallazgos, relacionar causas y efectos y redactar resultados (construyendo el árbol de problemas).<br>
+          <strong>Producto:</strong> Borrador de diagnóstico y análisis de problemas.
+        </div>
+      </div>
+      <div class="accordion-item" onclick="toggleAccordion(this)">
+        <div class="accordion-header">6. Socialización y devolución</div>
+        <div class="accordion-content">
+          <strong>Trabajo:</strong> Compartir resultados con participantes, validar interpretaciones y promover compromisos para continuar.<br>
+          <strong>Producto:</strong> Resultados contrastados, árbol revisado y acuerdos de seguimiento.
+        </div>
+      </div>
+
+      <div class="highlight-box" style="text-align: center; margin-top: 25px;">
+        <strong>🎓 Cierre de la lección:</strong><br>
+        Un diagnóstico de calidad conecta lo que queremos conocer con las herramientas, las personas y los territorios adecuados. Su valor se completa cuando la información se analiza, se comparte y ayuda a tomar decisiones.
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 7: BLOQUE 5 - VIDEO -->
+  <div class="screen" id="screen-7">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img1.png" class="cover-image" alt="Video Metodología">
+    <div class="content-wrapper">
+      <h2>Bloque 5. Video: El diagnóstico en la práctica</h2>
+      
+      <div class="video-container">
+        <div class="video-instructions">
+          <strong>Instrucciones:</strong> Observa atentamente el video sobre el diseño y la ruta del diagnóstico participativo. Presta especial atención a cómo se seleccionan las herramientas y cómo se garantiza la participación de niñas, niños y adolescentes. Al finalizar, reflexiona sobre cómo aplicarías estas etapas en tu contexto municipal.
+        </div>
+        <div class="video-wrapper">
+          <iframe src="https://drive.google.com/file/d/1rreX24KGum3hEHxfFnofq8YSqiJs9M0H/preview" allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <h3>💭 Reflexión post-video:</h3>
+      <p>¿Qué aspecto de la ruta de investigación te pareció más desafiante de implementar en tu municipio y por qué?</p>
+      <textarea class="interactive-textarea" placeholder="Escribe tu reflexión aquí..."></textarea>
+    </div>
+  </div>
+
+  <!-- PANTALLA 8: EVALUACIÓN (EMAPAREJAMIENTO) -->
+  <div class="screen" id="screen-8">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img5.png" class="cover-image" alt="Evaluación">
+    <div class="content-wrapper">
+      <h2>📝 Verifica tu aprendizaje: Emparejamiento</h2>
+      <p style="text-align:center; margin-bottom:20px; font-size:15px;">Haz clic en un concepto de la izquierda y luego en su definición correspondiente a la derecha.</p>
+
+      <div class="matching-container" id="matching-game">
+        <div class="match-col" id="col-concepts"></div>
+        <div class="match-col" id="col-definitions"></div>
+      </div>
+
+      <div class="quiz-result" id="quiz-result">
+        <h2 id="result-title"></h2>
+        <p id="result-message"></p>
+        <p id="result-score" style="font-size:20px; font-weight:bold; margin-top:15px;"></p>
+        <button class="btn-nav btn-next" style="margin-top: 20px;" onclick="resetMatching()">Intentar de nuevo</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BARRA DE PROGRESO (ABAJO) -->
+<div class="progress-bar">
+  <button class="btn-nav btn-prev" id="btn-prev" onclick="changeStep(-1)">← Anterior</button>
+  <div class="progress-steps">
+    <div class="step active" data-step="1" onclick="goToStep(1)">1</div>
+    <div class="step" data-step="2" onclick="goToStep(2)">2</div>
+    <div class="step" data-step="3" onclick="goToStep(3)">3</div>
+    <div class="step" data-step="4" onclick="goToStep(4)">4</div>
+    <div class="step" data-step="5" onclick="goToStep(5)">5</div>
+    <div class="step" data-step="6" onclick="goToStep(6)">6</div>
+    <div class="step" data-step="7" onclick="goToStep(7)">7</div>
+    <div class="step" data-step="8" onclick="goToStep(8)">8</div>
+  </div>
+  <button class="btn-nav btn-next" id="btn-next" onclick="changeStep(1)">Siguiente →</button>
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 8;
+  
+  // Matching Game Data
+  const matchData = [
+    { id: 1, concept: "Objeto de estudio", definition: "Delimita la realidad específica que se quiere comprender." },
+    { id: 2, concept: "Indicador cualitativo", definition: "Permite comprender cualidades, experiencias o percepciones." },
+    { id: 3, concept: "Grupo focal", definition: "Técnica para dialogar en grupo sobre un tema específico." },
+    { id: 4, concept: "Cobertura geográfica", definition: "Define el territorio y la población que formarán parte del diagnóstico." },
+    { id: 5, concept: "Socialización", definition: "Compartir resultados con participantes para validar interpretaciones." }
+  ];
+
+  let selectedConcept = null;
+  let selectedDefinition = null;
+  let matchesFound = 0;
+
+  function changeStep(direction) {
+    if (currentStep + direction >= 1 && currentStep + direction <= totalSteps) {
+      currentStep += direction;
+      goToStep(currentStep);
+    }
+  }
+
+  function goToStep(step) {
+    if (step > currentStep && step <= totalSteps) {
+      for (let i = currentStep; i < step; i++) {
+        document.querySelector(`.step[data-step="${i}"]`).classList.add('completed');
+      }
+    }
+    currentStep = step;
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`screen-${currentStep}`).classList.add('active');
+    
+    document.querySelectorAll('.step').forEach(s => {
+      s.classList.remove('active');
+      if (parseInt(s.dataset.step) === currentStep) s.classList.add('active');
+    });
+    
+    updateNav();
+    window.scrollTo(0, 0);
+
+    if (currentStep === 8) {
+      initMatchingGame();
+    }
+  }
+
+  function updateNav() {
+    document.getElementById('btn-prev').disabled = currentStep === 1;
+    const nextBtn = document.getElementById('btn-next');
+    if (currentStep === totalSteps) {
+      nextBtn.textContent = 'Finalizar lección ✓';
+      nextBtn.onclick = () => alert('¡Has completado la Lección 3!');
+    } else {
+      nextBtn.textContent = 'Siguiente →';
+      nextBtn.onclick = () => changeStep(1);
+      nextBtn.disabled = false;
+    }
+  }
+
+  function toggleAnswer(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('show');
+  }
+
+  function toggleAccordion(item) {
+    const isActive = item.classList.contains('active');
+    if (!isActive) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  }
+
+  // Matching Game Logic
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
+
+  function initMatchingGame() {
+    const colConcepts = document.getElementById('col-concepts');
+    const colDefinitions = document.getElementById('col-definitions');
+    const resultDiv = document.getElementById('quiz-result');
+    
+    colConcepts.innerHTML = '';
+    colDefinitions.innerHTML = '';
+    resultDiv.classList.remove('show');
+    selectedConcept = null;
+    selectedDefinition = null;
+    matchesFound = 0;
+
+    const shuffledConcepts = shuffle([...matchData]);
+    const shuffledDefinitions = shuffle([...matchData]);
+
+    shuffledConcepts.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'match-item';
+      div.textContent = item.concept;
+      div.dataset.id = item.id;
+      div.dataset.type = 'concept';
+      div.onclick = () => handleMatchClick(div);
+      colConcepts.appendChild(div);
+    });
+
+    shuffledDefinitions.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'match-item';
+      div.textContent = item.definition;
+      div.dataset.id = item.id;
+      div.dataset.type = 'definition';
+      div.onclick = () => handleMatchClick(div);
+      colDefinitions.appendChild(div);
+    });
+  }
+
+  function handleMatchClick(element) {
+    if (element.classList.contains('matched')) return;
+
+    const type = element.dataset.type;
+    
+    document.querySelectorAll(`.match-item[data-type="${type}"]`).forEach(el => {
+      if (!el.classList.contains('matched')) {
+        el.classList.remove('selected', 'wrong');
+      }
+    });
+
+    element.classList.add('selected');
+
+    if (type === 'concept') {
+      selectedConcept = element;
+    } else {
+      selectedDefinition = element;
+    }
+
+    if (selectedConcept && selectedDefinition) {
+      checkMatch();
+    }
+  }
+
+  function checkMatch() {
+    const id1 = selectedConcept.dataset.id;
+    const id2 = selectedDefinition.dataset.id;
+
+    if (id1 === id2) {
+      selectedConcept.classList.remove('selected');
+      selectedDefinition.classList.remove('selected');
+      selectedConcept.classList.add('matched');
+      selectedDefinition.classList.add('matched');
+      matchesFound++;
+      
+      selectedConcept = null;
+      selectedDefinition = null;
+
+      if (matchesFound === matchData.length) {
+        showResult();
+      }
+    } else {
+      selectedConcept.classList.add('wrong');
+      selectedDefinition.classList.add('wrong');
+      
+      setTimeout(() => {
+        selectedConcept.classList.remove('selected', 'wrong');
+        selectedDefinition.classList.remove('selected', 'wrong');
+        selectedConcept = null;
+        selectedDefinition = null;
+      }, 600);
+    }
+  }
+
+  function showResult() {
+    const resultDiv = document.getElementById('quiz-result');
+    const title = document.getElementById('result-title');
+    const message = document.getElementById('result-message');
+    const score = document.getElementById('result-score');
+    
+    const percentage = (matchesFound / matchData.length) * 100;
+    score.textContent = `Tu calificación: ${percentage}%`;
+
+    if (percentage >= 60) {
+      resultDiv.className = 'quiz-result show excellent';
+      if (percentage === 100) {
+        title.textContent = '🌟 ¡Excelente!';
+        message.textContent = 'Has dominado todos los conceptos de esta lección. ¡Estás listo para continuar!';
+      } else {
+        title.textContent = '👍 ¡Buen trabajo!';
+        message.textContent = 'Has comprendido la mayoría de los conceptos. ¡Sigue así!';
+      }
+    } else {
+      resultDiv.className = 'quiz-result show review';
+      title.textContent = '📚 Necesitas repasar';
+      message.textContent = 'Tu calificación es menor al 60%. Te recomendamos volver a revisar los contenidos de la lección antes de continuar.';
+    }
+  }
+
+  function resetMatching() {
+    initMatchingGame();
+  }
+
+  window.onload = function() {
+    updateNav();
+  };
+</script>
+</body>
+</html>
