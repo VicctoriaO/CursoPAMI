@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Actividad preparatoria - Módulo 3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body {
+    background: #f5f0f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 10px;
+  }
+  .container {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(138,9,118,0.15);
+    max-width: 900px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .cover-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #8a0976;
+  }
+  .cover-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .content {
+    padding: 22px 26px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .badge {
+    background: #8a0976;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  h1 {
+    color: #8a0976;
+    font-size: 22px;
+  }
+  h2 {
+    color: #8a0976;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .case {
+    background: #faf4fa;
+    border-left: 5px solid #8a0976;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: #393939;
+    line-height: 1.5;
+  }
+  .quote {
+    font-style: italic;
+    color: #8a0976;
+    padding: 6px 10px;
+    background: #fff;
+    border-radius: 6px;
+    margin: 6px 0;
+    display: inline-block;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .option {
+    background: #fff;
+    border: 2px solid #8a0976;
+    color: #393939;
+    padding: 12px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s;
+    text-align: left;
+  }
+  .option:hover { background: #8a0976; color: #fff; transform: translateY(-2px); }
+  .option.selected-correct { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+  .option.selected-wrong { background: #c62828; border-color: #c62828; color: #fff; }
+  .option.disabled { pointer-events: none; opacity: 0.85; }
+  .feedback {
+    background: #faf4fa;
+    border: 2px solid #8a0976;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: #393939;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.4s; }
+  .feedback strong { color: #8a0976; }
+  .reflection {
+    background: #fff8f0;
+    border: 2px dashed #8a0976;
+    border-radius: 10px;
+    padding: 12px 14px;
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .reflection.active { opacity: 1; pointer-events: auto; }
+  .reflection label {
+    display: block;
+    color: #8a0976;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .reflection textarea {
+    width: 100%;
+    min-height: 70px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 13px;
+    resize: vertical;
+    font-family: inherit;
+  }
+  .reflection textarea:focus { outline: 2px solid #8a0976; border-color: #8a0976; }
+  .hint {
+    font-size: 12px;
+    color: #393939;
+    margin-top: 6px;
+    font-style: italic;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 640px) {
+    .options { grid-template-columns: 1fr; }
+    h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="cover-image">
+    <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/284c1f907f1f4d5aac5a33793d32db27a55f5b81/M3Arecursos/m3img2.png" alt="Módulo 3: Diagnóstico Participativo">
+  </div>
+  
+  <div class="content">
+    <div class="header">
+      <span class="badge">Actividad preparatoria</span>
+      <h1>Módulo 3 · Diagnóstico participativo</h1>
+    </div>
+
+    <h2>📌 Situación para analizar</h2>
+    <div class="case">
+      En un municipio, varias personas expresan preocupación porque algunas y algunos adolescentes están dejando de asistir a la escuela.
+      <br><br>
+      Durante una reunión, una persona afirma:
+      <div class="quote">«El problema es que ya no les interesa estudiar. Deberíamos organizar charlas de motivación».</div>
+      <br>
+      Sin embargo, todavía no se ha consultado a adolescentes, familias o docentes, ni se han revisado los registros escolares.
+      <br><br>
+      <strong>¿Cuál considera que sería el mejor siguiente paso?</strong>
+    </div>
+
+    <div class="options">
+      <button class="option" data-key="A" onclick="selectOption(this)">
+        <strong>A.</strong> Organizar inmediatamente las charlas, porque ya se identificó una posible explicación.
+      </button>
+      <button class="option" data-key="B" onclick="selectOption(this)">
+        <strong>B.</strong> Revisar los registros escolares y utilizar únicamente esos datos para decidir qué hacer.
+      </button>
+      <button class="option" data-key="C" onclick="selectOption(this)">
+        <strong>C.</strong> Revisar la información disponible y escuchar a adolescentes, familias y docentes para comprender qué está ocurriendo.
+      </button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="reflection" id="reflection">
+      <label for="reflexion">️ Reflexión breve</label>
+      <textarea id="reflexion" placeholder="Piense en una situación de su municipio relacionada con la niñez y adolescencia. ¿Qué cree conocer sobre ella? ¿Qué necesitaría verificar? ¿Qué personas deberían participar para comprenderla mejor?"></textarea>
+      <p class="hint">Esta reflexión es personal, no se califica y no requiere compartir información de niñas, niños o adolescentes.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const feedbacks = {
+    A: "<strong>Si seleccionó A:</strong> Ha identificado una posible acción, pero todavía no se ha comprobado cuál es el problema ni qué lo provoca. Las charlas podrían no responder a las barreras reales que enfrentan las y los adolescentes.",
+    B: "<strong>Si seleccionó B:</strong> Los registros escolares son una fuente importante, pero no explican por sí solos todas las experiencias y barreras. Es necesario complementarlos con las voces de quienes viven la situación.",
+    C: "<strong>Si seleccionó C:</strong> ✅ Esta opción permite iniciar un diagnóstico participativo: combina información disponible con experiencias y opiniones para evitar decisiones basadas únicamente en suposiciones. La gestación de una política pública requiere investigar la realidad, identificar brechas de derechos y conocer cómo las niñas, los niños y adolescentes experimentan esas situaciones."
+  };
+
+  function selectOption(btn) {
+    const key = btn.dataset.key;
+    document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+    btn.classList.add(key === 'C' ? 'selected-correct' : 'selected-wrong');
+
+    const fb = document.getElementById('feedback');
+    fb.innerHTML = feedbacks[key];
+    fb.classList.add('show');
+
+    document.getElementById('reflection').classList.add('active');
+    document.getElementById('reflexion').focus();
+  }
+</script>
+</body>
+</html>
