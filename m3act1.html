@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Actividad preparatoria - Módulo 3</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
   body {
@@ -21,136 +23,89 @@
     width: 100%;
     overflow: hidden;
   }
-  .cover-image {
-    width: 100%;
-    height: auto;
-    display: block;
-    background: #8a0976;
-  }
-  .cover-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .content {
-    padding: 22px 26px;
-  }
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-  .badge {
-    background: #8a0976;
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-  h1 {
-    color: #8a0976;
-    font-size: 22px;
-  }
-  h2 {
-    color: #8a0976;
-    font-size: 16px;
-    margin-bottom: 8px;
+  .cover-image { width: 100%; display: block; background: #8a0976; }
+  .cover-image img { width: 100%; height: auto; display: block; }
+  .content { padding: 22px 26px; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .badge { background: #8a0976; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+  h1 { color: #8a0976; font-size: 22px; }
+  h2 { color: #8a0976; font-size: 16px; margin-bottom: 8px; }
+  .instructions {
+    background: #fff; border: 1px solid #e0d0e0; border-radius: 8px;
+    padding: 12px 14px; margin-bottom: 16px; font-size: 14px; color: #393939; line-height: 1.5;
   }
   .case {
-    background: #faf4fa;
-    border-left: 5px solid #8a0976;
-    padding: 12px 14px;
-    border-radius: 8px;
-    margin-bottom: 14px;
-    font-size: 14px;
-    color: #393939;
-    line-height: 1.5;
+    background: #faf4fa; border-left: 5px solid #8a0976;
+    padding: 12px 14px; border-radius: 8px; margin-bottom: 14px;
+    font-size: 14px; color: #393939; line-height: 1.5;
   }
-  .quote {
-    font-style: italic;
-    color: #8a0976;
-    padding: 6px 10px;
-    background: #fff;
-    border-radius: 6px;
-    margin: 6px 0;
-    display: inline-block;
-  }
-  .options {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 14px;
-  }
+  .quote { font-style: italic; color: #8a0976; padding: 6px 10px; background: #fff; border-radius: 6px; margin: 6px 0; display: inline-block; }
+  .options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
   .option {
-    background: #fff;
-    border: 2px solid #8a0976;
-    color: #393939;
-    padding: 12px 10px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.25s;
-    text-align: left;
+    background: #fff; border: 2px solid #8a0976; color: #393939;
+    padding: 12px 10px; border-radius: 10px; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: all 0.25s; text-align: left;
   }
   .option:hover { background: #8a0976; color: #fff; transform: translateY(-2px); }
   .option.selected-correct { background: #2e7d32; border-color: #2e7d32; color: #fff; }
   .option.selected-wrong { background: #c62828; border-color: #c62828; color: #fff; }
   .option.disabled { pointer-events: none; opacity: 0.85; }
   .feedback {
-    background: #faf4fa;
-    border: 2px solid #8a0976;
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 14px;
-    font-size: 14px;
-    color: #393939;
-    line-height: 1.5;
-    display: none;
+    background: #faf4fa; border: 2px solid #8a0976; border-radius: 10px;
+    padding: 12px 14px; margin-bottom: 14px; font-size: 14px; color: #393939; line-height: 1.5; display: none;
   }
   .feedback.show { display: block; animation: fadeIn 0.4s; }
   .feedback strong { color: #8a0976; }
   .reflection {
-    background: #fff8f0;
-    border: 2px dashed #8a0976;
-    border-radius: 10px;
-    padding: 12px 14px;
-    opacity: 0.4;
-    pointer-events: none;
-    transition: opacity 0.4s;
+    background: #fff8f0; border: 2px dashed #8a0976; border-radius: 10px;
+    padding: 12px 14px; opacity: 0.4; pointer-events: none; transition: opacity 0.4s;
   }
   .reflection.active { opacity: 1; pointer-events: auto; }
-  .reflection label {
-    display: block;
-    color: #8a0976;
-    font-weight: 700;
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
+  .reflection label { display: block; color: #8a0976; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
   .reflection textarea {
-    width: 100%;
-    min-height: 70px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 13px;
-    resize: vertical;
-    font-family: inherit;
+    width: 100%; min-height: 70px; border: 1px solid #ccc; border-radius: 8px;
+    padding: 8px; font-size: 13px; resize: vertical; font-family: inherit;
   }
   .reflection textarea:focus { outline: 2px solid #8a0976; border-color: #8a0976; }
-  .hint {
-    font-size: 12px;
-    color: #393939;
-    margin-top: 6px;
-    font-style: italic;
+  .reflection textarea:disabled { background: #faf4fa; cursor: not-allowed; }
+  .hint { font-size: 12px; color: #393939; margin-top: 6px; font-style: italic; }
+  .actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .btn {
+    border: none; padding: 10px 18px; border-radius: 8px;
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; transition: all 0.3s;
   }
+  .btn-save { background: #8a0976; color: #fff; }
+  .btn-save:hover:not(:disabled) { background: #6b075c; }
+  .btn-save:disabled { background: #ccc; cursor: not-allowed; }
+  .btn-pdf { background: #393939; color: #fff; }
+  .btn-pdf:hover:not(:disabled) { background: #222; }
+  .btn-pdf:disabled { background: #ccc; cursor: not-allowed; }
+  .saved-msg {
+    display: none; background: #e8f5e9; color: #2e7d32;
+    padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    margin-top: 10px; align-items: center; gap: 6px;
+  }
+  .saved-msg.show { display: flex; animation: fadeIn 0.4s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-  @media (max-width: 640px) {
-    .options { grid-template-columns: 1fr; }
-    h1 { font-size: 18px; }
+  @media (max-width: 640px) { .options { grid-template-columns: 1fr; } h1 { font-size: 18px; } }
+
+  /* Contenedor oculto para generar el PDF */
+  #pdf-content {
+    position: absolute; left: -9999px; top: 0;
+    width: 800px; background: #fff; padding: 40px;
+    font-family: 'Segoe UI', Tahoma, sans-serif; color: #393939;
   }
+  #pdf-content h1 { color: #8a0976; font-size: 24px; margin-bottom: 20px; border-bottom: 3px solid #8a0976; padding-bottom: 10px; }
+  #pdf-content h2 { color: #8a0976; font-size: 18px; margin-top: 25px; margin-bottom: 10px; }
+  #pdf-content .case { background: #faf4fa; border-left: 5px solid #8a0976; padding: 15px; border-radius: 8px; margin: 15px 0; line-height: 1.6; font-size: 14px; }
+  #pdf-content .quote { font-style: italic; color: #8a0976; background: #fff; padding: 10px; border-radius: 6px; display: inline-block; margin: 10px 0; }
+  #pdf-content .selection { border: 2px solid #8a0976; padding: 15px; border-radius: 10px; margin: 15px 0; line-height: 1.6; font-size: 14px; }
+  #pdf-content .selection.correct { border-color: #2e7d32; background: #f1f8e9; }
+  #pdf-content .selection.incorrect { border-color: #c62828; background: #ffebee; }
+  #pdf-content .feedback-pdf { background: #faf4fa; border: 2px solid #8a0976; border-radius: 10px; padding: 15px; margin: 15px 0; line-height: 1.6; font-size: 14px; }
+  #pdf-content .reflection-pdf { background: #fff8f0; border: 2px dashed #8a0976; border-radius: 10px; padding: 15px; margin: 15px 0; line-height: 1.6; font-size: 14px; white-space: pre-wrap; }
+  #pdf-content .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #8a0976; border-top: 1px solid #e0d0e0; padding-top: 15px; }
 </style>
 </head>
 <body>
@@ -163,6 +118,10 @@
     <div class="header">
       <span class="badge">Actividad preparatoria</span>
       <h1>Módulo 3 · Diagnóstico participativo</h1>
+    </div>
+
+    <div class="instructions">
+      <strong>Instrucciones:</strong> Lea la situación y seleccione la opción que considere más adecuada. Recibirá retroalimentación inmediata. Luego, escriba su reflexión personal y presione <strong>Guardar</strong>. Finalmente, podrá <strong>Descargar en PDF</strong> su trabajo completo.
     </div>
 
     <h2>📌 Situación para analizar</h2>
@@ -178,13 +137,13 @@
     </div>
 
     <div class="options">
-      <button class="option" data-key="A" onclick="selectOption(this)">
+      <button class="option" data-key="A" data-text="Organizar inmediatamente las charlas, porque ya se identificó una posible explicación." onclick="selectOption(this)">
         <strong>A.</strong> Organizar inmediatamente las charlas, porque ya se identificó una posible explicación.
       </button>
-      <button class="option" data-key="B" onclick="selectOption(this)">
+      <button class="option" data-key="B" data-text="Revisar los registros escolares y utilizar únicamente esos datos para decidir qué hacer." onclick="selectOption(this)">
         <strong>B.</strong> Revisar los registros escolares y utilizar únicamente esos datos para decidir qué hacer.
       </button>
-      <button class="option" data-key="C" onclick="selectOption(this)">
+      <button class="option" data-key="C" data-text="Revisar la información disponible y escuchar a adolescentes, familias y docentes para comprender qué está ocurriendo." onclick="selectOption(this)">
         <strong>C.</strong> Revisar la información disponible y escuchar a adolescentes, familias y docentes para comprender qué está ocurriendo.
       </button>
     </div>
@@ -195,11 +154,24 @@
       <label for="reflexion">️ Reflexión breve</label>
       <textarea id="reflexion" placeholder="Piense en una situación de su municipio relacionada con la niñez y adolescencia. ¿Qué cree conocer sobre ella? ¿Qué necesitaría verificar? ¿Qué personas deberían participar para comprenderla mejor?"></textarea>
       <p class="hint">Esta reflexión es personal, no se califica y no requiere compartir información de niñas, niños o adolescentes.</p>
+      
+      <div class="actions">
+        <button class="btn btn-save" id="saveBtn" onclick="saveReflection()" disabled>💾 Guardar reflexión</button>
+        <button class="btn btn-pdf" id="pdfBtn" onclick="downloadPDF()" disabled>📥 Descargar en PDF</button>
+      </div>
+      <div class="saved-msg" id="savedMsg">✅ Reflexión guardada correctamente. Ya puede descargar su PDF.</div>
     </div>
   </div>
 </div>
 
+<!-- Contenedor oculto para generar el PDF -->
+<div id="pdf-content"></div>
+
 <script>
+  let selectedKey = '';
+  let selectedText = '';
+  let isSaved = false;
+  
   const feedbacks = {
     A: "<strong>Si seleccionó A:</strong> Ha identificado una posible acción, pero todavía no se ha comprobado cuál es el problema ni qué lo provoca. Las charlas podrían no responder a las barreras reales que enfrentan las y los adolescentes.",
     B: "<strong>Si seleccionó B:</strong> Los registros escolares son una fuente importante, pero no explican por sí solos todas las experiencias y barreras. Es necesario complementarlos con las voces de quienes viven la situación.",
@@ -207,16 +179,104 @@
   };
 
   function selectOption(btn) {
-    const key = btn.dataset.key;
+    selectedKey = btn.dataset.key;
+    selectedText = btn.dataset.text;
+    
     document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
-    btn.classList.add(key === 'C' ? 'selected-correct' : 'selected-wrong');
+    btn.classList.add(selectedKey === 'C' ? 'selected-correct' : 'selected-wrong');
 
     const fb = document.getElementById('feedback');
-    fb.innerHTML = feedbacks[key];
+    fb.innerHTML = feedbacks[selectedKey];
     fb.classList.add('show');
 
     document.getElementById('reflection').classList.add('active');
+    document.getElementById('saveBtn').disabled = false;
     document.getElementById('reflexion').focus();
+  }
+
+  function saveReflection() {
+    const text = document.getElementById('reflexion').value.trim();
+    if (!text) {
+      alert('Por favor, escriba su reflexión antes de guardar.');
+      return;
+    }
+    document.getElementById('reflexion').disabled = true;
+    document.getElementById('saveBtn').disabled = true;
+    document.getElementById('pdfBtn').disabled = false;
+    document.getElementById('savedMsg').classList.add('show');
+    isSaved = true;
+  }
+
+  async function downloadPDF() {
+    if (!isSaved) return;
+    const reflectionText = document.getElementById('reflexion').value.trim() || "Sin respuesta escrita.";
+    const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    const pdfContent = document.getElementById('pdf-content');
+    pdfContent.innerHTML = `
+      <h1>📄 Mi Reflexión - Módulo 3: Diagnóstico Participativo</h1>
+      
+      <h2>📌 Situación Analizada</h2>
+      <div class="case">
+        En un municipio, varias personas expresan preocupación porque algunas y algunos adolescentes están dejando de asistir a la escuela.<br><br>
+        Durante una reunión, una persona afirma: <div class="quote">«El problema es que ya no les interesa estudiar. Deberíamos organizar charlas de motivación».</div><br>
+        Sin embargo, todavía no se ha consultado a adolescentes, familias o docentes, ni se han revisado los registros escolares.
+      </div>
+
+      <h2>✅ Mi Selección</h2>
+      <div class="selection ${selectedKey === 'C' ? 'correct' : 'incorrect'}">
+        <strong>Opción ${selectedKey}:</strong> ${selectedText}
+      </div>
+
+      <h2>💡 Retroalimentación Recibida</h2>
+      <div class="feedback-pdf">
+        ${feedbacks[selectedKey]}
+      </div>
+
+      <h2>✍️ Mi Reflexión Personal</h2>
+      <div class="reflection-pdf">${reflectionText}</div>
+
+      <div class="footer">
+        Documento generado el ${dateStr}<br>
+        Actividad preparatoria sin calificación. No se solicitó ni se almacenó información privada de niñas, niños o adolescentes.
+      </div>
+    `;
+
+    const btn = document.getElementById('pdfBtn');
+    btn.textContent = '⏳ Generando PDF...';
+    btn.disabled = true;
+
+    try {
+      const canvas = await html2canvas(pdfContent, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      if (imgHeight <= 297) {
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      } else {
+        let heightLeft = imgHeight;
+        let position = 0;
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= 297;
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= 297;
+        }
+      }
+      
+      pdf.save(`Reflexion_Modulo3_Opcion${selectedKey}.pdf`);
+    } catch (err) {
+      alert('Ocurrió un error al generar el PDF. Intente nuevamente.');
+      console.error(err);
+    } finally {
+      btn.innerHTML = ' Descargar en PDF';
+      btn.disabled = false;
+    }
   }
 </script>
 </body>
