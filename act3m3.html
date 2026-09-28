@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividad Práctica 2 - Módulo 3</title>
+<style>
+  :root {
+    --primary: #8a0976;
+    --primary-light: #f3e6f1;
+    --primary-dark: #6d075d;
+    --secondary: #393939;
+    --bg: #faf7fa;
+    --white: #ffffff;
+    --success: #2e7d32;
+    --success-light: #e8f5e9;
+    --error: #c62828;
+    --error-light: #ffebee;
+    --warning: #f57c00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+  
+  body {
+    background: var(--bg);
+    color: var(--secondary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .activity-container {
+    max-width: 900px;
+    width: 100%;
+    background: var(--white);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(138,9,118,0.1);
+    margin-bottom: 80px;
+  }
+
+  .cover-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 21/9;
+    object-fit: cover;
+    display: block;
+    border-radius: 15px 15px 0 0;
+  }
+
+  .content {
+    padding: 30px;
+  }
+
+  .activity-badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+
+  .activity-title {
+    color: var(--primary);
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .activity-subtitle {
+    color: var(--secondary);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+
+  .instructions-box {
+    background: var(--white);
+    border: 2px solid var(--primary-light);
+    border-left: 5px solid var(--primary);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.4s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 25px 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--primary);
+  }
+
+  .subsection-title {
+    color: var(--primary);
+    font-size: 17px;
+    font-weight: 700;
+    margin: 20px 0 12px 0;
+  }
+
+  /* Question cards */
+  .question-card {
+    background: var(--bg);
+    border: 2px solid var(--primary-light);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+  }
+  .question-card.correct-card { border-color: var(--success); background: var(--success-light); }
+  .question-card.incorrect-card { border-color: var(--error); background: var(--error-light); }
+  
+  .question-text {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .question-number {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .option-btn {
+    padding: 12px;
+    background: var(--white);
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--secondary);
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .option-btn:hover:not(.disabled) { border-color: var(--primary); background: var(--primary-light); }
+  .option-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+  .option-btn.correct { background: var(--success); color: white; border-color: var(--success); }
+  .option-btn.incorrect { background: var(--error); color: white; border-color: var(--error); }
+  .option-btn.disabled { cursor: not-allowed; opacity: 0.8; }
+
+  /* Feedback per question */
+  .question-feedback {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: none;
+  }
+  .question-feedback.show { display: block; animation: fadeIn 0.3s; }
+  .question-feedback.correct { background: var(--success-light); color: var(--success); border-left: 3px solid var(--success); }
+  .question-feedback.incorrect { background: var(--error-light); color: var(--error); border-left: 3px solid var(--error); }
+
+  /* Ordering */
+  .ordering-item {
+    background: var(--white);
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+  .ordering-item.correct-order { border-color: var(--success); background: var(--success-light); }
+  .ordering-item.incorrect-order { border-color: var(--error); background: var(--error-light); }
+  .order-number {
+    background: var(--primary);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .phase-text { flex: 1; font-size: 14px; font-weight: 600; }
+  .order-controls { display: flex; gap: 5px; }
+  .order-controls button {
+    background: var(--primary-light);
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--primary);
+    font-weight: bold;
+  }
+  .order-controls button:hover:not(:disabled) { background: var(--primary); color: white; }
+  .order-controls button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Buttons */
+  .check-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .check-btn:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-2px); }
+  .check-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary { background: #e0e0e0; color: var(--secondary); }
+  .btn-secondary:hover { background: #d0d0d0; }
+
+  /* Score summary */
+  .score-summary {
+    background: var(--primary-light);
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin: 20px 0;
+    display: none;
+  }
+  .score-summary.show { display: block; animation: fadeIn 0.4s; }
+  .score-summary h4 { color: var(--primary); margin-bottom: 8px; font-size: 16px; }
+  .score-summary p { font-size: 14px; margin: 5px 0; }
+
+  /* Results Screen */
+  .result-card {
+    text-align: center;
+    padding: 30px;
+    border-radius: 15px;
+    margin: 20px 0;
+    border: 3px solid;
+  }
+  .result-card.excellent { border-color: var(--success); background: var(--success-light); color: var(--success); }
+  .result-card.good { border-color: var(--warning); background: #fff8e1; color: var(--warning); }
+  .result-card.review { border-color: var(--error); background: var(--error-light); color: var(--error); }
+  .result-score { font-size: 56px; font-weight: 700; margin: 10px 0; }
+  .result-title { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+  .result-message { font-size: 16px; line-height: 1.5; }
+
+  .detail-scores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .detail-score-item {
+    background: var(--white);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid var(--primary-light);
+  }
+  .detail-score-item .label { font-size: 13px; color: var(--secondary); margin-bottom: 5px; }
+  .detail-score-item .value { font-size: 24px; font-weight: 700; color: var(--primary); }
+
+  .reflection-area {
+    margin-top: 25px;
+    background: var(--primary-light);
+    padding: 20px;
+    border-radius: 10px;
+  }
+  .reflection-area h3 { color: var(--primary); margin-bottom: 10px; font-size: 18px; }
+  .reflection-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .reflection-textarea:focus { outline: none; border-color: var(--primary-dark); }
+
+  .action-buttons { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+  .btn-save { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 700; cursor: pointer; }
+  .btn-download { background: white; color: var(--primary); border: 2px solid var(--primary); padding: 12px 25px; border-radius: 25px; font-weight: 700; cursor: pointer; }
+
+  .success-msg {
+    background: var(--success-light); color: var(--success); padding: 12px; border-radius: 8px; margin-top: 15px; display: none; font-weight: 600;
+  }
+
+  /* Progress Bar */
+  .progress-bar-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 3px solid var(--primary);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+  .progress-dots { display: flex; gap: 10px; }
+  .dot {
+    width: 32px; height: 32px; border-radius: 50%; background: #e0e0e0; color: #777;
+    display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+    transition: all 0.3s;
+  }
+  .dot.active { background: var(--primary); color: white; transform: scale(1.1); }
+  .dot.completed { background: #d896d0; color: white; }
+
+  @media (max-width: 600px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .content { padding: 20px; }
+    .activity-title { font-size: 22px; }
+    .result-score { font-size: 42px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="activity-container">
+  <img src="https://raw.githubusercontent.com/VicctoriaO/CursoPAMI/2feef6a453be764b1bb3a612089a66e569823744/M3Arecursos/m3img1.png" class="cover-image" alt="Políticas Públicas Municipales">
+  
+  <div class="content">
+    
+    <!-- PANTALLA 1: INSTRUCCIONES -->
+    <div class="screen active" id="screen-1">
+      <div class="activity-badge">Actividad Práctica 2</div>
+      <h1 class="activity-title">Marco conceptual y ciclo de las políticas públicas municipales</h1>
+      <h2 class="activity-subtitle">Módulo 3 · Diagnóstico participativo</h2>
+
+      <div class="instructions-box">
+        <strong>Objetivo:</strong> Relacionar la definición, las características y los tipos de políticas con las fases de su construcción.<br><br>
+        <strong>Instrucciones:</strong> Esta actividad consta de dos secciones evaluables. En la <strong>Actividad A</strong> identificará las características de las políticas públicas en ejemplos municipales. En la <strong>Actividad B</strong> ordenará las fases del ciclo y relacionará situaciones con los tipos de política. Cada sección cuenta con un botón <strong>Comprobar</strong> para validar sus respuestas.<br><br>
+        <strong>Criterio de aprobación:</strong> Para aprobar la actividad debe obtener una calificación igual o superior al 70%.
+      </div>
+
+      <div class="nav-buttons" style="justify-content: flex-end;">
+        <button class="btn btn-primary" onclick="goToScreen(2)">Comenzar Actividad A →</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA 2: ACTIVIDAD A -->
+    <div class="screen" id="screen-2">
+      <div class="activity-badge">Actividad A</div>
+      <h2 class="section-title">Identificación de Características</h2>
+      <p style="margin-bottom: 20px; font-size: 15px;">Lea cada situación municipal y seleccione la característica de política pública que mejor la representa. Al finalizar, presione <strong>Comprobar</strong> para validar sus respuestas.</p>
+
+      <div class="question-card" data-q="A1" data-correct="Participativa">
+        <div class="question-text"><span class="question-number">1</span>La municipalidad organiza foros con niñas y niños para preguntarles qué tipo de parques necesitan y dónde se sienten más seguros antes de aprobar una política de recreación.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'A1')">Participativa</button>
+          <button class="option-btn" onclick="selectOption(this, 'A1')">Descentralizada</button>
+          <button class="option-btn" onclick="selectOption(this, 'A1')">Democrática</button>
+          <button class="option-btn" onclick="selectOption(this, 'A1')">No burocrática</button>
+        </div>
+        <div class="question-feedback" id="feedback-A1"></div>
+      </div>
+
+      <div class="question-card" data-q="A2" data-correct="Descentralizada">
+        <div class="question-text"><span class="question-number">2</span>Un municipio con alta población indígena diseña una política de salud nutricional que respeta la pertinencia cultural y utiliza idiomas locales, adaptándose a su realidad específica.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'A2')">Participativa</button>
+          <button class="option-btn" onclick="selectOption(this, 'A2')">Descentralizada</button>
+          <button class="option-btn" onclick="selectOption(this, 'A2')">Democrática</button>
+          <button class="option-btn" onclick="selectOption(this, 'A2')">No burocrática</button>
+        </div>
+        <div class="question-feedback" id="feedback-A2"></div>
+      </div>
+
+      <div class="question-card" data-q="A3" data-correct="Democrática">
+        <div class="question-text"><span class="question-number">3</span>Al definir el presupuesto para niñez en el COMUDE, se escuchan propuestas de líderes comunitarios, organizaciones de mujeres y grupos juveniles hasta llegar a un consenso respetuoso.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'A3')">Participativa</button>
+          <button class="option-btn" onclick="selectOption(this, 'A3')">Descentralizada</button>
+          <button class="option-btn" onclick="selectOption(this, 'A3')">Democrática</button>
+          <button class="option-btn" onclick="selectOption(this, 'A3')">No burocrática</button>
+        </div>
+        <div class="question-feedback" id="feedback-A3"></div>
+      </div>
+
+      <div class="question-card" data-q="A4" data-correct="No burocrática">
+        <div class="question-text"><span class="question-number">4</span>En lugar de un trámite de meses para activar un programa de becas, la política establece mecanismos directos de coordinación entre las escuelas y la oficina municipal de niñez.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'A4')">Participativa</button>
+          <button class="option-btn" onclick="selectOption(this, 'A4')">Descentralizada</button>
+          <button class="option-btn" onclick="selectOption(this, 'A4')">Democrática</button>
+          <button class="option-btn" onclick="selectOption(this, 'A4')">No burocrática</button>
+        </div>
+        <div class="question-feedback" id="feedback-A4"></div>
+      </div>
+
+      <button class="check-btn" id="btn-check-A" onclick="checkActivityA()">✓ Comprobar Actividad A</button>
+
+      <div class="score-summary" id="score-summary-A">
+        <h4>📊 Resultado de la Actividad A</h4>
+        <p id="score-text-A"></p>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToScreen(1)">← Volver</button>
+        <button class="btn btn-primary" onclick="goToScreen(3)">Ir a Actividad B →</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA 3: ACTIVIDAD B -->
+    <div class="screen" id="screen-3">
+      <div class="activity-badge">Actividad B</div>
+      
+      <h2 class="section-title">Parte 1: Ordene el ciclo de las políticas públicas</h2>
+      <p style="margin-bottom: 20px; font-size: 15px;">Utilice las flechas para ordenar las 6 fases desde el inicio (investigación) hasta el cierre (aprendizaje).</p>
+
+      <div id="ordering-container"></div>
+
+      <h2 class="section-title" style="margin-top: 35px;">Parte 2: Identifique el tipo de política</h2>
+      <p style="margin-bottom: 20px; font-size: 15px;">Relacione cada situación con el tipo de política que mejor representa su propósito principal.</p>
+
+      <div class="question-card" data-q="B1" data-correct="Sociales básicas">
+        <div class="question-text"><span class="question-number">1</span>Se amplía el acceso a agua potable y educación para toda la niñez del municipio.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'B1')">Sociales básicas</button>
+          <button class="option-btn" onclick="selectOption(this, 'B1')">Asistencia social</button>
+          <button class="option-btn" onclick="selectOption(this, 'B1')">Protección especial</button>
+          <button class="option-btn" onclick="selectOption(this, 'B1')">Garantía</button>
+          <button class="option-btn" onclick="selectOption(this, 'B1')">Participación</button>
+        </div>
+        <div class="question-feedback" id="feedback-B1"></div>
+      </div>
+
+      <div class="question-card" data-q="B2" data-correct="Asistencia social">
+        <div class="question-text"><span class="question-number">2</span>Se organiza apoyo alimentario para familias en condiciones de pobreza extrema.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'B2')">Sociales básicas</button>
+          <button class="option-btn" onclick="selectOption(this, 'B2')">Asistencia social</button>
+          <button class="option-btn" onclick="selectOption(this, 'B2')">Protección especial</button>
+          <button class="option-btn" onclick="selectOption(this, 'B2')">Garantía</button>
+          <button class="option-btn" onclick="selectOption(this, 'B2')">Participación</button>
+        </div>
+        <div class="question-feedback" id="feedback-B2"></div>
+      </div>
+
+      <div class="question-card" data-q="B3" data-correct="Protección especial">
+        <div class="question-text"><span class="question-number">3</span>Se establece atención especializada para niñas y niños cuyos derechos han sido vulnerados mediante trabajo infantil.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'B3')">Sociales básicas</button>
+          <button class="option-btn" onclick="selectOption(this, 'B3')">Asistencia social</button>
+          <button class="option-btn" onclick="selectOption(this, 'B3')">Protección especial</button>
+          <button class="option-btn" onclick="selectOption(this, 'B3')">Garantía</button>
+          <button class="option-btn" onclick="selectOption(this, 'B3')">Participación</button>
+        </div>
+        <div class="question-feedback" id="feedback-B3"></div>
+      </div>
+
+      <div class="question-card" data-q="B4" data-correct="Garantía">
+        <div class="question-text"><span class="question-number">4</span>Se fortalecen procedimientos para que niñas, niños y adolescentes reciban un trato justo en actuaciones de protección de sus derechos.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'B4')">Sociales básicas</button>
+          <button class="option-btn" onclick="selectOption(this, 'B4')">Asistencia social</button>
+          <button class="option-btn" onclick="selectOption(this, 'B4')">Protección especial</button>
+          <button class="option-btn" onclick="selectOption(this, 'B4')">Garantía</button>
+          <button class="option-btn" onclick="selectOption(this, 'B4')">Participación</button>
+        </div>
+        <div class="question-feedback" id="feedback-B4"></div>
+      </div>
+
+      <div class="question-card" data-q="B5" data-correct="Participación">
+        <div class="question-text"><span class="question-number">5</span>Se crea un espacio en el que niñas, niños y adolescentes elaboran y presentan propuestas a las autoridades.</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="selectOption(this, 'B5')">Sociales básicas</button>
+          <button class="option-btn" onclick="selectOption(this, 'B5')">Asistencia social</button>
+          <button class="option-btn" onclick="selectOption(this, 'B5')">Protección especial</button>
+          <button class="option-btn" onclick="selectOption(this, 'B5')">Garantía</button>
+          <button class="option-btn" onclick="selectOption(this, 'B5')">Participación</button>
+        </div>
+        <div class="question-feedback" id="feedback-B5"></div>
+      </div>
+
+      <button class="check-btn" id="btn-check-B" onclick="checkActivityB()">✓ Comprobar Actividad B</button>
+
+      <div class="score-summary" id="score-summary-B">
+        <h4>📊 Resultado de la Actividad B</h4>
+        <p id="score-text-B"></p>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="goToScreen(2)">← Volver</button>
+        <button class="btn btn-primary" onclick="goToScreen(4)">Ver Resultados Finales →</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA 4: RESULTADOS -->
+    <div class="screen" id="screen-4">
+      <div class="activity-badge">Resultados Finales</div>
+      <h2 class="section-title">Calificación Total</h2>
+      
+      <div class="detail-scores">
+        <div class="detail-score-item">
+          <div class="label">Actividad A</div>
+          <div class="value" id="detail-score-A">-</div>
+        </div>
+        <div class="detail-score-item">
+          <div class="label">Actividad B</div>
+          <div class="value" id="detail-score-B">-</div>
+        </div>
+        <div class="detail-score-item">
+          <div class="label">Total</div>
+          <div class="value" id="detail-score-total">-</div>
+        </div>
+      </div>
+
+      <div class="result-card" id="result-card">
+        <div class="result-title" id="result-title"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-message" id="result-message"></div>
+      </div>
+
+      <div class="reflection-area">
+        <h3>💭 Reflexión personal</h3>
+        <p style="font-size: 14px; margin-bottom: 12px;">Esta reflexión es personal, no se califica y no requiere compartir información de niñas, niños o adolescentes.</p>
+        <textarea class="reflection-textarea" id="reflection-text" placeholder="Escriba aquí su reflexión sobre lo aprendido en esta actividad... ¿Qué aspecto del ciclo de políticas públicas le pareció más relevante para su municipio y por qué?"></textarea>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-save" onclick="saveReflection()">💾 Guardar reflexión</button>
+        <button class="btn-download" onclick="downloadPDF()"> Descargar en PDF</button>
+      </div>
+      <div class="success-msg" id="success-msg">✅ Reflexión guardada correctamente. Ya puede descargar su PDF.</div>
+
+      <div class="nav-buttons" style="margin-top: 30px;">
+        <button class="btn btn-secondary" onclick="goToScreen(3)">← Revisar Actividad B</button>
+        <button class="btn btn-primary" onclick="resetActivity()">🔄 Reiniciar actividad</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BARRA DE PROGRESO -->
+<div class="progress-bar-container">
+  <div class="progress-dots">
+    <div class="dot active" id="dot-1">1</div>
+    <div class="dot" id="dot-2">2</div>
+    <div class="dot" id="dot-3">3</div>
+    <div class="dot" id="dot-4">4</div>
+  </div>
+  <div style="font-weight: bold; color: var(--primary);">Actividad Práctica 2</div>
+</div>
+
+<script>
+  // State
+  let currentScreen = 1;
+  let answers = {};
+  let scoreA = 0;
+  let scoreB = 0;
+  let checkedA = false;
+  let checkedB = false;
+  
+  // Ordering Data
+  const correctOrder = ['Gestación', 'Formulación', 'Negociación', 'Decisión política', 'Implementación', 'Evaluación'];
+  let currentOrder = [...correctOrder].sort(() => Math.random() - 0.5);
+
+  function goToScreen(n) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`screen-${n}`).classList.add('active');
+    
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.remove('active', 'completed');
+      if (i + 1 < n) d.classList.add('completed');
+      if (i + 1 === n) d.classList.add('active');
+    });
+    
+    currentScreen = n;
+    window.scrollTo(0, 0);
+    
+    if (n === 3) renderOrdering();
+    if (n === 4) showFinalResults();
+  }
+
+  function selectOption(btn, qId) {
+    // Prevent changing answer after check
+    if (checkedA && qId.startsWith('A')) return;
+    if (checkedB && qId.startsWith('B')) return;
+    
+    const card = btn.closest('.question-card');
+    card.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    answers[qId] = btn.textContent.trim();
+  }
+
+  function renderOrdering() {
+    const container = document.getElementById('ordering-container');
+    container.innerHTML = '';
+    currentOrder.forEach((phase, index) => {
+      const item = document.createElement('div');
+      item.className = 'ordering-item';
+      item.dataset.phase = phase;
+      item.innerHTML = `
+        <div class="order-number">${index + 1}</div>
+        <div class="phase-text">${phase}</div>
+        <div class="order-controls">
+          <button onclick="movePhase(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+          <button onclick="movePhase(${index}, 1)" ${index === currentOrder.length - 1 ? 'disabled' : ''}>↓</button>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function movePhase(index, direction) {
+    if (checkedB) return;
+    const newIndex = index + direction;
+    if (newIndex >= 0 && newIndex < currentOrder.length) {
+      const temp = currentOrder[index];
+      currentOrder[index] = currentOrder[newIndex];
+      currentOrder[newIndex] = temp;
+      renderOrdering();
+    }
+  }
+
+  // CHECK ACTIVITY A
+  function checkActivityA() {
+    if (checkedA) return;
+    
+    let correctCount = 0;
+    const totalQuestions = 4;
+    const feedbacks = {
+      'A1': { correct: 'Correcto. La consulta directa a niñas y niños antes de decidir es el sello de una política participativa.', incorrect: 'Incorrecto. La respuesta correcta es Participativa, porque la municipalidad consulta directamente a niñas y niños antes de decidir.' },
+      'A2': { correct: 'Correcto. Adaptar la política a la realidad cultural y lingüística local es una política descentralizada.', incorrect: 'Incorrecto. La respuesta correcta es Descentralizada, porque la política se adapta a la realidad cultural y lingüística del municipio.' },
+      'A3': { correct: 'Correcto. Escuchar múltiples voces hasta llegar a un consenso es una política democrática.', incorrect: 'Incorrecto. La respuesta correcta es Democrática, porque se escuchan diversas voces hasta llegar a un consenso respetuoso.' },
+      'A4': { correct: 'Correcto. Eliminar trámites innecesarios y crear coordinación directa es una política no burocrática.', incorrect: 'Incorrecto. La respuesta correcta es No burocrática, porque se eliminan trámites y se establece coordinación directa.' }
+    };
+
+    document.querySelectorAll('#screen-2 .question-card').forEach(card => {
+      const qId = card.dataset.q;
+      const correct = card.dataset.correct;
+      const selected = answers[qId];
+      const feedback = document.getElementById(`feedback-${qId}`);
+      
+      card.querySelectorAll('.option-btn').forEach(b => {
+        b.classList.add('disabled');
+        if (b.textContent.trim() === correct) b.classList.add('correct');
+        else if (b.classList.contains('selected') && selected !== correct) b.classList.add('incorrect');
+      });
+
+      if (selected === correct) {
+        correctCount++;
+        card.classList.add('correct-card');
+        feedback.className = 'question-feedback show correct';
+        feedback.innerHTML = '✅ ' + feedbacks[qId].correct;
+      } else {
+        card.classList.add('incorrect-card');
+        feedback.className = 'question-feedback show incorrect';
+        feedback.innerHTML = '❌ ' + feedbacks[qId].incorrect;
+      }
+    });
+
+    scoreA = correctCount;
+    checkedA = true;
+    document.getElementById('btn-check-A').disabled = true;
+    document.getElementById('btn-check-A').textContent = '✓ Comprobado';
+
+    const percentage = Math.round((correctCount / totalQuestions) * 100);
+    const summary = document.getElementById('score-summary-A');
+    const text = document.getElementById('score-text-A');
+    
+    if (percentage === 100) {
+      text.innerHTML = `<strong>¡Excelente!</strong> Ha identificado correctamente las 4 características. Puntaje: ${correctCount}/${totalQuestions} (100%)`;
+    } else if (percentage >= 50) {
+      text.innerHTML = `<strong>Buen trabajo.</strong> Ha identificado ${correctCount} de ${totalQuestions} características correctamente. Puntaje: ${percentage}%. Revise las retroalimentaciones para fortalecer su aprendizaje.`;
+    } else {
+      text.innerHTML = `<strong>Necesita repasar.</strong> Ha identificado ${correctCount} de ${totalQuestions} características correctamente. Puntaje: ${percentage}%. Le recomendamos revisar el Bloque 2 de la Lección 1.`;
+    }
+    summary.classList.add('show');
+  }
+
+  // CHECK ACTIVITY B
+  function checkActivityB() {
+    if (checkedB) return;
+    
+    let correctCount = 0;
+    const totalPoints = 11; // 6 ordering + 5 types
+
+    // Check ordering
+    let orderCorrect = 0;
+    currentOrder.forEach((phase, index) => {
+      const items = document.querySelectorAll('.ordering-item');
+      if (items[index]) {
+        if (phase === correctOrder[index]) {
+          items[index].classList.add('correct-order');
+          orderCorrect++;
+        } else {
+          items[index].classList.add('incorrect-order');
+        }
+        items[index].querySelectorAll('button').forEach(b => b.disabled = true);
+      }
+    });
+
+    // Check types
+    const feedbacks = {
+      'B1': { correct: 'Correcto. El acceso universal a agua y educación es una política social básica.', incorrect: 'Incorrecto. La respuesta correcta es Sociales básicas, porque garantiza derechos universales para toda la niñez.' },
+      'B2': { correct: 'Correcto. El apoyo alimentario a familias en pobreza extrema es asistencia social.', incorrect: 'Incorrecto. La respuesta correcta es Asistencia social, porque atiende a poblaciones en riesgo socioeconómico.' },
+      'B3': { correct: 'Correcto. La atención a niñez trabajadora es una política de protección especial.', incorrect: 'Incorrecto. La respuesta correcta es Protección especial, porque responde a una situación de vulneración de derechos.' },
+      'B4': { correct: 'Correcto. Fortalecer procedimientos justos es una política de garantía.', incorrect: 'Incorrecto. La respuesta correcta es Garantía, porque asegura el cumplimiento de la ley y procedimientos justos.' },
+      'B5': { correct: 'Correcto. Crear espacios para que NNA presenten propuestas es una política de participación.', incorrect: 'Incorrecto. La respuesta correcta es Participación, porque crea canales para que NNA ejerzan su ciudadanía.' }
+    };
+
+    document.querySelectorAll('#screen-3 .question-card').forEach(card => {
+      const qId = card.dataset.q;
+      const correct = card.dataset.correct;
+      const selected = answers[qId];
+      const feedback = document.getElementById(`feedback-${qId}`);
+      
+      card.querySelectorAll('.option-btn').forEach(b => {
+        b.classList.add('disabled');
+        if (b.textContent.trim() === correct) b.classList.add('correct');
+        else if (b.classList.contains('selected') && selected !== correct) b.classList.add('incorrect');
+      });
+
+      if (selected === correct) {
+        correctCount++;
+        card.classList.add('correct-card');
+        feedback.className = 'question-feedback show correct';
+        feedback.innerHTML = '✅ ' + feedbacks[qId].correct;
+      } else {
+        card.classList.add('incorrect-card');
+        feedback.className = 'question-feedback show incorrect';
+        feedback.innerHTML = '❌ ' + feedbacks[qId].incorrect;
+      }
+    });
+
+    scoreB = orderCorrect + correctCount;
+    checkedB = true;
+    document.getElementById('btn-check-B').disabled = true;
+    document.getElementById('btn-check-B').textContent = '✓ Comprobado';
+
+    const percentage = Math.round((scoreB / totalPoints) * 100);
+    const summary = document.getElementById('score-summary-B');
+    const text = document.getElementById('score-text-B');
+    
+    if (percentage >= 80) {
+      text.innerHTML = `<strong>¡Excelente!</strong> Ha ordenado correctamente ${orderCorrect} de 6 fases y identificado ${correctCount} de 5 tipos. Puntaje: ${scoreB}/${totalPoints} (${percentage}%)`;
+    } else if (percentage >= 60) {
+      text.innerHTML = `<strong>Buen trabajo.</strong> Ha ordenado ${orderCorrect} de 6 fases y identificado ${correctCount} de 5 tipos. Puntaje: ${scoreB}/${totalPoints} (${percentage}%). Revise las retroalimentaciones.`;
+    } else {
+      text.innerHTML = `<strong>Necesita repasar.</strong> Ha ordenado ${orderCorrect} de 6 fases y identificado ${correctCount} de 5 tipos. Puntaje: ${scoreB}/${totalPoints} (${percentage}%). Le recomendamos revisar las Lecciones 1 y 2 del módulo.`;
+    }
+    summary.classList.add('show');
+  }
+
+  // FINAL RESULTS
+  function showFinalResults() {
+    const maxA = 4;
+    const maxB = 11;
+    const totalMax = maxA + maxB;
+    const totalScore = scoreA + scoreB;
+    const percentage = Math.round((totalScore / totalMax) * 100);
+    const percentageA = Math.round((scoreA / maxA) * 100);
+    const percentageB = Math.round((scoreB / maxB) * 100);
+
+    document.getElementById('detail-score-A').textContent = `${scoreA}/${maxA} (${percentageA}%)`;
+    document.getElementById('detail-score-B').textContent = `${scoreB}/${maxB} (${percentageB}%)`;
+    document.getElementById('detail-score-total').textContent = `${totalScore}/${totalMax} (${percentage}%)`;
+
+    const card = document.getElementById('result-card');
+    const title = document.getElementById('result-title');
+    const score = document.getElementById('result-score');
+    const msg = document.getElementById('result-message');
+
+    score.textContent = `${percentage}%`;
+
+    if (percentage >= 90) {
+      card.className = 'result-card excellent';
+      title.textContent = '🌟 ¡Excelente!';
+      msg.textContent = 'Ha dominado todos los conceptos del marco conceptual y el ciclo de políticas públicas. ¡Felicitaciones por su destacado desempeño!';
+    } else if (percentage >= 70) {
+      card.className = 'result-card good';
+      title.textContent = ' ¡Buen trabajo!';
+      msg.textContent = 'Ha comprendido la mayoría de los conceptos. Revise los temas donde tuvo dificultad para fortalecer su aprendizaje.';
+    } else {
+      card.className = 'result-card review';
+      title.textContent = ' Necesita repasar';
+      msg.textContent = 'Su calificación es menor al 70%. Le recomendamos volver a revisar las lecciones del Módulo 3 antes de continuar con el siguiente módulo.';
+    }
+  }
+
+  function saveReflection() {
+    const text = document.getElementById('reflection-text').value;
+    if (text.trim().length < 10) {
+      alert('Por favor, escriba una reflexión más completa antes de guardar.');
+      return;
+    }
+    document.getElementById('success-msg').style.display = 'block';
+    setTimeout(() => { document.getElementById('success-msg').style.display = 'none'; }, 4000);
+  }
+
+  function downloadPDF() {
+    alert('Función de descarga en PDF: En un entorno real, esta función generaría un PDF con sus respuestas y reflexión. Por ahora, puede usar la función de impresión del navegador (Ctrl+P) para guardar como PDF.');
+  }
+
+  function resetActivity() {
+    answers = {};
+    scoreA = 0;
+    scoreB = 0;
+    checkedA = false;
+    checkedB = false;
+    currentOrder = [...correctOrder].sort(() => Math.random() - 0.5);
+    
+    document.querySelectorAll('.option-btn').forEach(b => {
+      b.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+    });
+    document.querySelectorAll('.question-card').forEach(c => {
+      c.classList.remove('correct-card', 'incorrect-card');
+    });
+    document.querySelectorAll('.question-feedback').forEach(f => {
+      f.classList.remove('show', 'correct', 'incorrect');
+      f.innerHTML = '';
+    });
+    document.querySelectorAll('.ordering-item').forEach(i => {
+      i.classList.remove('correct-order', 'incorrect-order');
+    });
+    
+    document.getElementById('btn-check-A').disabled = false;
+    document.getElementById('btn-check-A').textContent = '✓ Comprobar Actividad A';
+    document.getElementById('btn-check-B').disabled = false;
+    document.getElementById('btn-check-B').textContent = '✓ Comprobar Actividad B';
+    
+    document.getElementById('score-summary-A').classList.remove('show');
+    document.getElementById('score-summary-B').classList.remove('show');
+    document.getElementById('reflection-text').value = '';
+    
+    goToScreen(1);
+  }
+</script>
+</body>
+</html>
